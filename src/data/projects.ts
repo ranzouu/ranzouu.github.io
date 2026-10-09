@@ -7,7 +7,7 @@ export interface Project {
   href: string;
 }
 
-// hrefs genéricos: o Rayson confirma as URLs reais na revisão de conteúdo
+// Links apontam para o perfil do GitHub até os repos individuais ficarem públicos
 export const projects: Project[] = [
   {
     name: "cryptobotz",
@@ -16,7 +16,7 @@ export const projects: Project[] = [
     description:
       "Bot de trading algorítmico multi-exchange em paper trading, com circuit breakers, telemetria de risco e 122 testes.",
     shot: "/shots/cryptobotz.jpg",
-    href: "https://github.com/rayson",
+    href: "https://github.com/ranzouu",
   },
   {
     name: "DailyRoutine",
@@ -25,7 +25,7 @@ export const projects: Project[] = [
     description:
       "App iOS de rotina, hábitos e tarefas com visual de terminal, dashboard de pontuação e relatórios semanais.",
     shot: "/shots/dailyroutine-dash.png",
-    href: "https://github.com/rayson",
+    href: "https://github.com/ranzouu",
   },
   {
     name: "tameru",
@@ -34,7 +34,7 @@ export const projects: Project[] = [
     description:
       "App iOS e watchOS com engine de contexto própria, arquitetura hexagonal e canvas de partículas no relógio.",
     shot: "/shots/tameru.jpg",
-    href: "https://github.com/rayson",
+    href: "https://github.com/ranzouu",
   },
   {
     name: "tomawatchi",
@@ -43,7 +43,7 @@ export const projects: Project[] = [
     description:
       "Tamagotchi para o Apple Watch, com árvore de evolução ramificada e criaturas desenhadas do zero.",
     shot: "/shots/tomawatchi.jpg",
-    href: "https://github.com/rayson",
+    href: "https://github.com/ranzouu",
   },
   {
     name: "leadforge",
@@ -52,6 +52,6 @@ export const projects: Project[] = [
     description:
       "Sistema de prospecção B2B com agentes de IA modulares: fontes plugáveis, qualificação por LLM e exportação CSV.",
     shot: "/shots/leadforge.jpg",
-    href: "https://github.com/rayson",
+    href: "https://github.com/ranzouu",
   },
 ];
