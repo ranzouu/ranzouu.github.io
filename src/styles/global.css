@@ -1,0 +1,133 @@
+@layer reset, tokens, base, components;
+
+@layer tokens {
+  :root {
+    --paper: oklch(0.977 0.005 95);
+    --ink: oklch(0.21 0.01 260);
+    --ink-soft: oklch(0.45 0.012 260);
+    --line: oklch(0.87 0.008 260);
+    --accent: oklch(0.55 0.12 150);
+    --accent-ink: oklch(0.98 0.005 95);
+    --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+    --font-body: "Archivo", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+    --measure: 65ch;
+    --space-2xs: 0.5rem;
+    --space-xs: 1rem;
+    --space-s: 1.5rem;
+    --space-m: 2.5rem;
+    --space-l: 4rem;
+    --space-xl: 7rem;
+    --radius: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: oklch(0.17 0.01 260);
+      --ink: oklch(0.93 0.008 95);
+      --ink-soft: oklch(0.70 0.012 260);
+      --line: oklch(0.30 0.01 260);
+      --accent: oklch(0.72 0.13 150);
+      --accent-ink: oklch(0.16 0.03 150);
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  a {
+    color: inherit;
+  }
+}
+
+@layer components {
+  .wrap {
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: var(--space-s);
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    margin: 0 0 var(--space-l);
+  }
+
+  .cta {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 1rem;
+    padding: 0.9rem 1.75rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+
+  .cta:hover {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .cta:active {
+    translate: 0 1px;
+  }
+}
+
+/* Reveals: scroll-driven animations nativas.
+   Keyframes fora dos layers. Uso protegido duas vezes:
+   reduced-motion + @supports. Browsers sem suporte = conteúdo estático. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 1.75rem;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 30%;
+    }
+  }
+}
