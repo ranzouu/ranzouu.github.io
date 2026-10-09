@@ -97,6 +97,15 @@ Textos (hero, história, descrições de projeto) serão escritos na implementa�
 | Screenshots | Placeholders picsum | layout primeiro, reais depois |
 | Idioma | PT-BR | audiência natural (assumido por silêncio) |
 
+## Decisões pós-spec (durante implementação, verificadas)
+
+- **Tokens oklch → hex equivalentes**: axe-core (auditor do Lighthouse) não parseia `oklch()` e reportava falhas de contraste falsas no dark mode. Hex equivalentes dos mesmos tons, contraste AA confirmado matematicamente nos dois modos.
+- **CSS inline no build** (`inlineStylesheets: "always"`): eliminou 400ms de render-blocking; Lighthouse perf 82 → 100.
+- **Reveal slide-only (sem fade)**: keyframe com `opacity` deixava texto abaixo da dobra invisível no estado de repouso; axe media contraste no texto apagado. O keyframe agora anima só `translate`.
+- **Preload das duas faces do LCP** (Newsreader 500 + italic) e remoção das faces não usadas (Newsreader 400, Archivo 500; arquivos woff2 correspondentes removidos do repo).
+- **Screenshots via `public/` + `loading="lazy"`** em vez de `astro:assets` AVIF/WebP: 5 shots hover-only (280px), ganho marginal não justifica o pipeline; única divergência consciente do spec de performance.
+- **PNG do DailyRoutine redimensionado** 196KB → 42KB (`sips -Z 600`); `aspect-ratio` + `object-fit: cover` no hover resolve o retrato 276×600 na caixa 1200/750.
+
 ## Aberto / risco
 
 - Copy precisa de sessão curta com o Rayson para não virar texto genérico
