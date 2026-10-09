@@ -1,0 +1,62 @@
+---
+const groups = [
+  { title: "linguagens", items: ["Python", "Swift"] },
+  {
+    title: "mobile",
+    items: ["SwiftUI", "watchOS", "HealthKit", "WidgetKit", "XcodeGen"],
+  },
+  {
+    title: "dados e bots",
+    items: ["pandas", "ccxt", "Streamlit", "pytest", "SQLAlchemy", "SQLite"],
+  },
+];
+---
+<section class="stack reveal" id="ferramentas">
+  <h2 class="section-title">Ferramentas</h2>
+  <div class="groups">
+    {groups.map((g) => (
+      <div>
+        <h3>{g.title}</h3>
+        <ul>
+          {g.items.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .stack {
+    padding-block: var(--space-xl);
+  }
+
+  .groups {
+    display: grid;
+    gap: var(--space-m);
+  }
+
+  @media (min-width: 769px) {
+    .groups {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  h3 {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--ink-soft);
+    margin: 0 0 var(--space-s);
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-s);
+  }
+</style>
