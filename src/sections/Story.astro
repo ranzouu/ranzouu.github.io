@@ -1,0 +1,45 @@
+---
+---
+<section class="story reveal" id="historia">
+  <h2 class="section-title">A história</h2>
+  <div class="cols">
+    <p>
+      Sou personal trainer. Passei anos desenhando treino e rotina para dezenas
+      de alunos, e a parte que eu mais gostava nunca foi a parte física: era
+      montar sistemas de hábito, medir progresso e ajustar variáveis até a
+      rotina engrenar.
+    </p>
+    <p>
+      Agora estou em transição para TI. O primeiro bot de trading virou um
+      sistema com testes, telemetria e circuit breakers. O app de rotina que eu
+      desenhava no papel virou um app iOS com HealthKit e relatórios.
+    </p>
+    <p>
+      Construo bots, apps e automações. A mentalidade é a mesma do treino:
+      consistência, carga progressiva e teste antes de confiança.
+    </p>
+  </div>
+</section>
+
+<style>
+  .story {
+    padding-block: var(--space-xl);
+  }
+
+  .cols {
+    max-width: var(--measure);
+    display: grid;
+    gap: var(--space-s);
+  }
+
+  @media (min-width: 769px) {
+    .cols {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-l);
+    }
+
+    .cols p:first-child {
+      margin-top: var(--space-l);
+    }
+  }
+</style>
