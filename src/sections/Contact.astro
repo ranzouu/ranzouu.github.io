@@ -1,0 +1,46 @@
+---
+// Confirmado com o Rayson no Step 0 (trocar os valores abaixo)
+const email = "rayson@example.com";
+const github = "https://github.com/rayson";
+const linkedin = "https://www.linkedin.com/in/rayson";
+---
+<footer class="contact reveal" id="contato">
+  <h2 class="section-title">Fale comigo</h2>
+  <p class="hint">Aberto pra falar de projetos, colaborações e oportunidades em TI.</p>
+  <a class="cta" href={`mailto:${email}`}>{email}</a>
+  <ul class="links">
+    <li>
+      <a href={github} rel="me noopener" target="_blank">GitHub</a>
+    </li>
+    <li>
+      <a href={linkedin} rel="me noopener" target="_blank">LinkedIn</a>
+    </li>
+  </ul>
+</footer>
+
+<style>
+  .contact {
+    border-top: 1px solid var(--line);
+    padding-block: var(--space-xl) var(--space-l);
+  }
+
+  .hint {
+    color: var(--ink-soft);
+    margin: 0 0 var(--space-s);
+  }
+
+  .links {
+    list-style: none;
+    display: flex;
+    gap: var(--space-s);
+    margin: var(--space-m) 0 0;
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+  }
+
+  .links a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>
