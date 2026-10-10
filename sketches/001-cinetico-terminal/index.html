@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sketch A — Cinético-Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0b0e11;
+    --fg: #e8ecea;
+    --dim: #6b7a72;
+    --green: #46e07a;
+    --line: #1e2622;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Space Grotesk", -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--green); color: #04140a; }
+  a { color: inherit; text-decoration: none; }
+
+  /* grid de fundo sutil */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 1200px; margin-inline: auto; padding-inline: 24px; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 32px;
+    font-family: "JetBrains Mono", monospace; font-size: 13px;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    z-index: 10;
+  }
+  nav .logo { color: var(--green); font-weight: 700; }
+  nav .links { display: flex; gap: 24px; color: var(--dim); }
+  nav .links a:hover { color: var(--green); }
+
+  /* HERO */
+  .hero {
+    min-height: 100dvh;
+    display: grid;
+    align-content: center;
+    position: relative;
+  }
+  .kicker {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px; color: var(--green);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .kicker::before {
+    content: ""; width: 8px; height: 8px; background: var(--green);
+    border-radius: 50%;
+    animation: blink 1.6s steps(2) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0.15; } }
+  h1 {
+    font-size: clamp(3.4rem, 11vw, 9.5rem);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+  h1 .grad {
+    background: linear-gradient(92deg, var(--green), #9fe8b8 55%, var(--fg));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero-sub {
+    margin-top: 28px;
+    font-size: clamp(1.05rem, 2vw, 1.35rem);
+    color: var(--dim);
+    max-width: 46ch;
+    line-height: 1.5;
+  }
+  .hero-sub b { color: var(--fg); font-weight: 500; }
+  .hero-cta { margin-top: 40px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .btn {
+    font-family: "JetBrains Mono", monospace; font-size: 14px;
+    padding: 14px 28px; border: 1px solid var(--line); border-radius: 2px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative; overflow: hidden;
+  }
+  .btn.primary { background: var(--green); color: #04140a; border-color: var(--green); font-weight: 700; }
+  .btn.primary:hover { translate: 0 -2px; box-shadow: 0 12px 40px -12px var(--green); }
+  .btn.ghost:hover { border-color: var(--green); color: var(--green); }
+
+  /* MARQUEE */
+  .marquee {
+    border-block: 1px solid var(--line);
+    overflow: hidden; white-space: nowrap;
+    padding-block: 14px;
+    font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--dim);
+  }
+  .marquee-track { display: inline-flex; gap: 48px; animation: slide 22s linear infinite; }
+  .marquee-track span b { color: var(--green); margin-right: 48px; }
+  @keyframes slide { to { transform: translateX(-50%); } }
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+
+  /* TRABALHOS */
+  .section { padding-block: 110px; }
+  .section-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 48px; }
+  h2 { font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 700; letter-spacing: -0.02em; }
+  .section-head .count { font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--dim); }
+  .work-list { list-style: none; }
+  .work-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline; gap: 20px;
+    padding: 26px 8px;
+    border-top: 1px solid var(--line);
+    position: relative;
+    transition: background 0.3s;
+  }
+  .work-row:last-child { border-bottom: 1px solid var(--line); }
+  .work-row .num { font-family: "JetBrains Mono", monospace; color: var(--dim); font-size: 13px; }
+  .work-row .name { font-size: clamp(1.5rem, 3.5vw, 2.6rem); font-weight: 500; letter-spacing: -0.01em; transition: color 0.25s, transform 0.25s; }
+  .work-row .tag { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--dim); white-space: nowrap; }
+  .work-row:hover { background: #0f1418; }
+  .work-row:hover .name { color: var(--green); transform: translateX(8px); }
+
+  /* preview flutuante no hover */
+  .work-row::after {
+    content: "";
+    position: absolute; right: 8%; top: 50%; translate: 0 -50%;
+    width: 240px; height: 150px;
+    background: linear-gradient(135deg, #1a211c, #101512);
+    border: 1px solid var(--green);
+    opacity: 0; scale: 0.9;
+    transition: opacity 0.3s, scale 0.3s;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .work-row:hover::after { opacity: 1; scale: 1; }
+
+  /* HISTÓRIA */
+  .story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; }
+  .story-grid p { color: var(--dim); line-height: 1.7; margin-bottom: 20px; font-size: 1.05rem; }
+  .story-grid p b { color: var(--fg); font-weight: 500; }
+
+  /* STACK chips */
+  .stack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  .stack-group h3 { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--green); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 16px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    font-family: "JetBrains Mono", monospace; font-size: 13px;
+    padding: 8px 14px;
+    border: 1px solid var(--line); border-radius: 2px;
+    color: var(--dim);
+    transition: all 0.25s;
+  }
+  .chip:hover { border-color: var(--green); color: var(--green); translate: 0 -2px; }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--line); padding: 64px 0 40px; }
+  .foot-cta { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700; margin-bottom: 32px; }
+  .foot-cta a { color: var(--green); border-bottom: 2px solid var(--line); transition: border-color 0.25s; }
+  .foot-cta a:hover { border-color: var(--green); }
+  .foot-meta { display: flex; justify-content: space-between; font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--dim); }
+
+  @media (max-width: 768px) {
+    .story-grid, .stack-grid { grid-template-columns: 1fr; }
+    .work-row { grid-template-columns: 1fr auto; }
+    .work-row .num { display: none; }
+    .work-row::after { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track { animation: none; }
+    .kicker::before { animation: none; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <span class="logo">~/rayson</span>
+  <div class="links">
+    <a href="#trabalhos">trabalhos</a>
+    <a href="#historia">história</a>
+    <a href="#stack">stack</a>
+    <a href="#contato">contato</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <section class="hero" id="top">
+    <p class="kicker">rayson@fortaleza:~$ construindo</p>
+    <h1>Personal trainer<br /><span class="grad" id="decode">virando dev.</span></h1>
+    <p class="hero-sub">
+      Construo <b>bots de trading</b>, <b>apps iOS</b> e <b>automações</b>.
+      A mentalidade é a mesma do treino: consistência, carga progressiva e teste antes de confiança.
+    </p>
+    <div class="hero-cta">
+      <a class="btn primary" href="#trabalhos">ver projetos →</a>
+      <a class="btn ghost" href="#contato">fale comigo</a>
+    </div>
+  </section>
+</div>
+
+<div class="marquee">
+  <div class="marquee-track">
+    <span><b>python</b> swift <b>swiftui</b> ccxt <b>pandas</b> healthkit <b>streamlit</b> groq <b>watchos</b> pytest <b>swiftdata</b> sqlalchemy</span>
+    <span><b>python</b> swift <b>swiftui</b> ccxt <b>pandas</b> healthkit <b>streamlit</b> groq <b>watchos</b> pytest <b>swiftdata</b> sqlalchemy</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="section" id="trabalhos">
+    <div class="section-head">
+      <h2>trabalhos</h2>
+      <span class="count">5 projetos / 2026</span>
+    </div>
+    <ol class="work-list">
+      <li class="work-row"><span class="num">01</span><span class="name">cryptobotz</span><span class="tag">python · bots</span></li>
+      <li class="work-row"><span class="num">02</span><span class="name">DailyRoutine</span><span class="tag">swift · ios</span></li>
+      <li class="work-row"><span class="num">03</span><span class="name">tameru</span><span class="tag">swift · watchos</span></li>
+      <li class="work-row"><span class="num">04</span><span class="name">tomawatchi</span><span class="tag">swift · watchos</span></li>
+      <li class="work-row"><span class="num">05</span><span class="name">leadforge</span><span class="tag">python · agentes</span></li>
+    </ol>
+  </section>
+
+  <section class="section" id="historia">
+    <div class="section-head"><h2>a história</h2></div>
+    <div class="story-grid">
+      <div>
+        <p>Passei anos desenhando treino e rotina para dezenas de alunos. A parte que eu mais gostava nunca foi a parte física: era <b>montar sistemas de hábito</b>, medir progresso e ajustar variáveis até a rotina engrenar.</p>
+      </div>
+      <div>
+        <p>Agora em transição para TI: o primeiro bot de trading virou um sistema com <b>testes, telemetria e circuit breakers</b>. O app de rotina que eu desenhava no papel virou um app iOS com HealthKit.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="stack">
+    <div class="section-head"><h2>stack</h2></div>
+    <div class="stack-grid">
+      <div class="stack-group">
+        <h3>linguagens</h3>
+        <div class="chip-row"><span class="chip">Python</span><span class="chip">Swift</span></div>
+      </div>
+      <div class="stack-group">
+        <h3>mobile</h3>
+        <div class="chip-row"><span class="chip">SwiftUI</span><span class="chip">watchOS</span><span class="chip">HealthKit</span><span class="chip">WidgetKit</span><span class="chip">XcodeGen</span></div>
+      </div>
+      <div class="stack-group">
+        <h3>dados & bots</h3>
+        <div class="chip-row"><span class="chip">pandas</span><span class="chip">ccxt</span><span class="chip">Streamlit</span><span class="chip">pytest</span><span class="chip">SQLAlchemy</span><span class="chip">SQLite</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer id="contato">
+    <p class="foot-cta">tem um projeto em mente? <a href="mailto:rayson.severiano@gmail.com">fale comigo</a></p>
+    <div class="foot-meta">
+      <span>github.com/ranzouu</span>
+      <span>linkedin/in/rayson-severiano</span>
+      <span>fortaleza, br</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+  // decode effect no headline (respeita reduced-motion)
+  const el = document.getElementById("decode");
+  const finalText = el.textContent;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce) {
+    const glyphs = "abcdef0123456789#%$&*/<>";
+    let frame = 0;
+    const total = 26;
+    (function tick() {
+      frame++;
+      const revealed = Math.floor((frame / total) * finalText.length);
+      el.textContent = finalText.split("").map((c, i) =>
+        i < revealed ? c : glyphs[Math.floor(Math.random() * glyphs.length)]
+      ).join("");
+      if (frame < total) requestAnimationFrame(tick);
+      else el.textContent = finalText;
+    })();
+  }
+</script>
+</body>
+</html>

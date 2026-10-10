@@ -4,42 +4,53 @@ const github = "https://github.com/ranzouu";
 const linkedin = "https://www.linkedin.com/in/rayson-severiano-a4a576140";
 ---
 <footer class="contact reveal" id="contato">
-  <h2 class="section-title">Fale comigo</h2>
-  <p class="hint">Aberto pra falar de projetos, colaborações e oportunidades em TI.</p>
-  <a class="cta" href={`mailto:${email}`}>{email}</a>
-  <ul class="links">
-    <li>
-      <a href={github} rel="me noopener" target="_blank">GitHub</a>
-    </li>
-    <li>
-      <a href={linkedin} rel="me noopener" target="_blank">LinkedIn</a>
-    </li>
-  </ul>
+  <p class="big">
+    Tem um projeto?<br />
+    <a href={`mailto:${email}`}>Vamos conversar</a>
+  </p>
+  <div class="meta">
+    <a href={github} rel="me noopener" target="_blank">github/ranzouu</a>
+    <a href={linkedin} rel="me noopener" target="_blank">linkedin/rayson-severiano</a>
+    <span>fortaleza, brasil</span>
+  </div>
 </footer>
 
 <style>
   .contact {
-    border-top: 1px solid var(--line);
-    padding-block: var(--space-xl) var(--space-l);
+    border-top: 1px solid var(--hairline);
+    padding-block: var(--space-xl) var(--space-m);
   }
 
-  .hint {
-    color: var(--ink-soft);
-    margin: 0 0 var(--space-s);
+  .big {
+    font-size: clamp(2.4rem, 7vw, 5.8rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.02;
+    margin: 0 0 var(--space-l);
   }
 
-  .links {
-    list-style: none;
+  .big a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 2px solid var(--hairline);
+    transition: border-color 0.3s;
+  }
+
+  .big a:hover {
+    border-color: var(--accent);
+  }
+
+  .meta {
     display: flex;
-    gap: var(--space-s);
-    margin: var(--space-m) 0 0;
-    padding: 0;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    color: var(--dim);
     font-family: var(--font-mono);
-    font-size: 0.875rem;
+    font-size: 0.82rem;
   }
 
-  .links a {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+  .meta a:hover {
+    color: var(--accent);
   }
 </style>

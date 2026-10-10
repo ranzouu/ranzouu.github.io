@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sketch C — Playground Interativo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #07090c;
+    --fg: #eef2f0;
+    --dim: #5d6a64;
+    --green: #52f28b;
+    --violet: #8f7bf2;
+  }
+  body {
+    font-family: "Sora", -apple-system, sans-serif;
+    background: var(--bg); color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--green); color: #05130b; }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1160px; margin-inline: auto; padding-inline: 28px; position: relative; z-index: 2; }
+
+  /* canvas de partículas */
+  #fx {
+    position: fixed; inset: 0; z-index: 0;
+  }
+  /* vinheta pro canvas não brigar com o texto */
+  .vignette {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(ellipse 90% 70% at 50% 40%, transparent 55%, var(--bg) 100%);
+  }
+
+  /* NAV flutuante pill */
+  nav {
+    position: fixed; top: 20px; left: 50%; translate: -50% 0; z-index: 10;
+    display: flex; gap: 6px; align-items: center;
+    padding: 8px 10px;
+    background: rgba(14, 18, 16, 0.72);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(82, 242, 139, 0.18);
+    border-radius: 999px;
+    font-size: 13px;
+  }
+  nav a {
+    padding: 8px 16px; border-radius: 999px;
+    color: var(--dim);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  nav a:hover, nav a.active { background: var(--green); color: #05130b; font-weight: 600; }
+
+  /* HERO */
+  .hero {
+    min-height: 100dvh;
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative;
+  }
+  .badge {
+    align-self: flex-start;
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; letter-spacing: 0.08em;
+    color: var(--green);
+    border: 1px solid rgba(82, 242, 139, 0.3);
+    padding: 8px 16px; border-radius: 999px;
+    margin-bottom: 28px;
+    background: rgba(82, 242, 139, 0.06);
+  }
+  .badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 50% { opacity: 0.3; } }
+  h1 {
+    font-size: clamp(2.8rem, 9vw, 7.2rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    max-width: 14ch;
+    text-wrap: balance;
+  }
+  h1 .x { color: var(--green); }
+  h1 .y { color: var(--violet); }
+  .hero-sub {
+    margin-top: 26px; max-width: 52ch;
+    color: var(--dim); line-height: 1.6; font-size: 1.05rem; font-weight: 300;
+  }
+  .hero-cta { margin-top: 44px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn {
+    padding: 15px 30px; border-radius: 999px; font-size: 14px; font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+  .btn.primary { background: var(--green); color: #05130b; }
+  .btn.primary:hover { translate: 0 -3px; box-shadow: 0 20px 60px -20px var(--green); }
+  .btn.ghost { border: 1px solid rgba(238, 242, 240, 0.2); color: var(--fg); }
+  .btn.ghost:hover { border-color: var(--green); color: var(--green); }
+
+  /* hint do canvas */
+  .play-hint {
+    position: absolute; bottom: 32px; left: 50%; translate: -50% 0;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--dim);
+    animation: bob 2.4s ease-in-out infinite;
+  }
+  @keyframes bob { 50% { translate: -50% -6px; } }
+
+  /* SECTIONS com reveal de mola */
+  .section { padding-block: 130px; position: relative; }
+  .reveal {
+    opacity: 0; translate: 0 46px; scale: 0.985;
+    transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.in { opacity: 1; translate: 0 0; scale: 1; }
+  .kicker {
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--green); margin-bottom: 14px; font-weight: 600;
+  }
+  h2 { font-size: clamp(2rem, 5vw, 3.6rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 48px; }
+
+  /* TRABALHOS: bento grid */
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+  }
+  .cell {
+    border: 1px solid rgba(238, 242, 240, 0.09);
+    border-radius: 20px;
+    padding: 28px;
+    background: rgba(20, 26, 23, 0.5);
+    backdrop-filter: blur(8px);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .cell:hover {
+    translate: 0 -6px;
+    border-color: rgba(82, 242, 139, 0.45);
+    box-shadow: 0 32px 80px -40px rgba(82, 242, 139, 0.4);
+  }
+  .cell h3 { font-size: 1.35rem; font-weight: 600; margin-bottom: 8px; }
+  .cell p { font-size: 0.88rem; color: var(--dim); line-height: 1.55; }
+  .cell .tag {
+    font-size: 11px; color: var(--green);
+    border: 1px solid rgba(82, 242, 139, 0.25);
+    padding: 4px 10px; border-radius: 999px;
+    display: inline-block; margin-bottom: 14px;
+  }
+  .cell.big { grid-column: span 3; grid-row: span 2; }
+  .cell.med { grid-column: span 3; }
+  .cell.sml { grid-column: span 2; }
+
+  /* stats vivos */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-block: 64px; }
+  .stat {
+    text-align: center; padding: 28px 12px;
+    border: 1px solid rgba(238, 242, 240, 0.09); border-radius: 20px;
+    background: rgba(20, 26, 23, 0.5);
+  }
+  .stat b { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; color: var(--green); display: block; }
+  .stat span { font-size: 12px; color: var(--dim); letter-spacing: 0.06em; }
+
+  /* HISTÓRIA timeline */
+  .story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; }
+  .story-grid p { color: var(--dim); line-height: 1.75; margin-bottom: 18px; font-weight: 300; }
+  .story-grid p b { color: var(--fg); font-weight: 600; }
+
+  /* FOOTER */
+  footer { padding-block: 130px 60px; text-align: center; }
+  .foot-big { font-size: clamp(2.2rem, 7vw, 5.5rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 40px; }
+  .foot-big a { color: var(--green); }
+  .foot-big a:hover { text-decoration: underline; text-underline-offset: 8px; }
+  .foot-links { display: flex; justify-content: center; gap: 28px; font-size: 13px; color: var(--dim); }
+  .foot-links a:hover { color: var(--green); }
+
+  @media (max-width: 768px) {
+    .bento { grid-template-columns: 1fr; }
+    .cell.big, .cell.med, .cell.sml { grid-column: span 1; grid-row: span 1; }
+    .story-grid { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: 1fr; }
+    nav { max-width: 92vw; }
+    nav a { padding: 7px 10px; font-size: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { transition: none; opacity: 1; translate: none; scale: none; }
+    .play-hint, .badge .dot { animation: none; }
+  }
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div class="vignette"></div>
+
+<nav>
+  <a href="#trabalhos" class="active">trabalhos</a>
+  <a href="#historia">história</a>
+  <a href="#stack">stack</a>
+  <a href="#contato">contato</a>
+</nav>
+
+<div class="wrap">
+  <section class="hero" id="top">
+    <span class="badge"><span class="dot"></span> disponível para projetos</span>
+    <h1>Personal trainer <span class="x">virando</span> <span class="y">dev.</span></h1>
+    <p class="hero-sub">
+      Construo bots de trading, apps iOS e automações com a mentalidade do treino:
+      consistência, carga progressiva e teste antes de confiança.
+    </p>
+    <div class="hero-cta">
+      <a class="btn primary" href="#trabalhos">Ver projetos</a>
+      <a class="btn ghost" href="#contato">Fale comigo</a>
+    </div>
+    <span class="play-hint">mexa o mouse: as partículas seguem você</span>
+  </section>
+
+  <section class="section" id="trabalhos">
+    <div class="reveal">
+      <p class="kicker">trabalhos</p>
+      <h2>O que estou construindo</h2>
+    </div>
+    <div class="bento reveal">
+      <article class="cell big">
+        <span class="tag">python · bots</span>
+        <h3>cryptobotz</h3>
+        <p>Bot de trading algorítmico multi-exchange em paper trading, com circuit breakers, telemetria de risco e 122 testes. Onde a disciplina do treino encontra risco calculado.</p>
+      </article>
+      <article class="cell med">
+        <span class="tag">swiftui · healthkit</span>
+        <h3>DailyRoutine</h3>
+        <p>App iOS de rotina, hábitos e tarefas com visual de terminal, dashboard de pontuação e relatórios semanais.</p>
+      </article>
+      <article class="cell sml">
+        <span class="tag">swift · watchos</span>
+        <h3>tameru</h3>
+        <p>Engine de contexto própria e partículas interativas no relógio.</p>
+      </article>
+      <article class="cell sml">
+        <span class="tag">swift · watchos</span>
+        <h3>tomawatchi</h3>
+        <p>Tamagotchi para o Apple Watch com árvore de evolução.</p>
+      </article>
+      <article class="cell sml">
+        <span class="tag">python · agentes</span>
+        <h3>leadforge</h3>
+        <p>Prospecção B2B com agentes de IA modulares e exportação CSV.</p>
+      </article>
+    </div>
+    <div class="stats reveal">
+      <div class="stat"><b>122</b><span>testes no cryptobotz</span></div>
+      <div class="stat"><b>5</b><span>projetos ativos</span></div>
+      <div class="stat"><b>2</b><span>plataformas apple</span></div>
+    </div>
+  </section>
+
+  <section class="section" id="historia">
+    <div class="reveal">
+      <p class="kicker">história</p>
+      <h2>Do treino ao código</h2>
+    </div>
+    <div class="story-grid reveal">
+      <div>
+        <p>Passei anos desenhando treino e rotina para dezenas de alunos. A parte que eu mais gostava <b>nunca foi a parte física</b>: era montar sistemas de hábito, medir progresso e ajustar variáveis até a rotina engrenar.</p>
+      </div>
+      <div>
+        <p>Em transição para TI: o primeiro bot de trading virou um sistema com <b>testes, telemetria e circuit breakers</b>. O app de rotina que eu desenhava no papel virou um app iOS com HealthKit e relatórios.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="stack">
+    <div class="reveal">
+      <p class="kicker">stack</p>
+      <h2>Ferramentas do dia a dia</h2>
+    </div>
+    <div class="bento reveal">
+      <article class="cell med">
+        <h3>linguagens</h3>
+        <p>Python · Swift</p>
+      </article>
+      <article class="cell med">
+        <h3>mobile</h3>
+        <p>SwiftUI · watchOS · HealthKit · WidgetKit · XcodeGen</p>
+      </article>
+      <article class="cell big" style="grid-row: span 1;">
+        <h3>dados & bots</h3>
+        <p>pandas · ccxt · Streamlit · pytest · SQLAlchemy · SQLite</p>
+      </article>
+    </div>
+  </section>
+
+  <footer id="contato">
+    <div class="reveal">
+      <p class="foot-big">Tem um projeto?<br /><a href="mailto:rayson.severiano@gmail.com">Vamos conversar</a></p>
+      <div class="foot-links">
+        <a href="https://github.com/ranzouu">GitHub</a>
+        <a href="https://www.linkedin.com/in/rayson-severiano-a4a576140">LinkedIn</a>
+        <span>Fortaleza, Brasil</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+  // Partículas que seguem o mouse (homenagem ao tameru)
+  const canvas = document.getElementById("fx");
+  const ctx = canvas.getContext("2d");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let W, H, mouse = { x: -999, y: -999 };
+  const N = 70;
+  const P = [];
+
+  function resize() {
+    W = canvas.width = innerWidth * devicePixelRatio;
+    H = canvas.height = innerHeight * devicePixelRatio;
+    canvas.style.width = innerWidth + "px";
+    canvas.style.height = innerHeight + "px";
+  }
+  resize();
+  addEventListener("resize", resize);
+  addEventListener("pointermove", (e) => { mouse.x = e.clientX * devicePixelRatio; mouse.y = e.clientY * devicePixelRatio; });
+  addEventListener("pointerleave", () => { mouse.x = mouse.y = -999; });
+
+  for (let i = 0; i < N; i++) {
+    P.push({
+      x: Math.random() * W, y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
+      r: (Math.random() * 2 + 1) * devicePixelRatio,
+      hue: Math.random() < 0.8 ? "82, 242, 139" : "143, 123, 242",
+    });
+  }
+
+  if (!reduce) {
+    (function loop() {
+      ctx.clearRect(0, 0, W, H);
+      for (const p of P) {
+        // atração suave pro mouse
+        const dx = mouse.x - p.x, dy = mouse.y - p.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < (260 * devicePixelRatio) ** 2) {
+          const d = Math.sqrt(d2) || 1;
+          p.vx += (dx / d) * 0.06;
+          p.vy += (dy / d) * 0.06;
+        }
+        p.vx *= 0.97; p.vy *= 0.97;
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, 7);
+        ctx.fillStyle = `rgba(${p.hue}, 0.5)`;
+        ctx.fill();
+      }
+      requestAnimationFrame(loop);
+    })();
+  }
+
+  // reveal on scroll
+  const io = new IntersectionObserver((es) => {
+    es.forEach((e) => e.isIntersecting && e.target.classList.add("in"));
+  }, { threshold: 0.15 });
+  document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+  // nav ativo
+  const navLinks = [...document.querySelectorAll("nav a")];
+  const ioNav = new IntersectionObserver((es) => {
+    es.forEach((e) => {
+      const link = navLinks.find((l) => l.getAttribute("href") === "#" + e.target.id);
+      if (link && e.isIntersecting) {
+        navLinks.forEach((l) => l.classList.remove("active"));
+        link.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-40% 0px -50% 0px" });
+  document.querySelectorAll("section[id], footer[id]").forEach((s) => ioNav.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sketch D — 2026 Alinhado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0c0e;          /* near-black, gênero dev */
+    --bg-raise: #101417;
+    --fg: #e9edeb;
+    --dim: #64716b;
+    --accent: #52f28b;       /* único acento, saturado p/ dark */
+    --hairline: rgba(233, 237, 235, 0.08);
+  }
+  body {
+    font-family: "Space Grotesk", -apple-system, sans-serif;
+    background: var(--bg); color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  /* GRANULAÇÃO — sinal "humano" de 2026, custo zero de imagem */
+  body::after {
+    content: ""; position: fixed; inset: -50%; z-index: 50; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity: 0.05;
+    animation: grain 8s steps(6) infinite;
+  }
+  @keyframes grain {
+    0%,100% { transform: translate(0,0); } 16% { transform: translate(-3%,2%); }
+    33% { transform: translate(2%,-3%); } 50% { transform: translate(-2%,-2%); }
+    66% { transform: translate(3%,2%); } 83% { transform: translate(-1%,3%); }
+  }
+  ::selection { background: var(--accent); color: #04140a; }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1180px; margin-inline: auto; padding-inline: 28px; }
+
+  /* NAV hairline (barely-there UI) */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--hairline);
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    backdrop-filter: blur(14px);
+    font-size: 13.5px;
+  }
+  nav .logo { font-weight: 700; letter-spacing: -0.02em; }
+  nav .logo em { color: var(--accent); font-style: normal; }
+  nav .links { display: flex; gap: 22px; color: var(--dim); }
+  nav .links a { transition: color .2s; }
+  nav .links a:hover { color: var(--accent); }
+
+  /* HERO — o ÚNICO momento cinético da página */
+  .hero {
+    min-height: 100dvh;
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative;
+  }
+  .kicker {
+    font-size: 13px; color: var(--accent);
+    margin-bottom: 22px; letter-spacing: 0.02em;
+  }
+  .kicker::before { content: "> "; opacity: 0.6; }
+  h1 {
+    font-size: clamp(3rem, 10.5vw, 8.6rem);
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    max-width: 15ch;
+  }
+  h1 .accent { color: var(--accent); }
+  /* variável: peso anima no hover — o headline responde ao toque */
+  h1 .w {
+    font-variation-settings: "wght" 700;
+    transition: font-variation-settings 0.5s ease;
+  }
+  h1:hover .w { font-variation-settings: "wght" 300; }
+  .hero-sub {
+    margin-top: 30px; max-width: 50ch;
+    color: var(--dim); line-height: 1.6; font-size: 1.06rem; font-weight: 300;
+  }
+  .hero-sub b { color: var(--fg); font-weight: 500; }
+  .hero-meta {
+    margin-top: 44px; display: flex; gap: 28px;
+    font-size: 12px; color: var(--dim); letter-spacing: 0.06em;
+  }
+  .hero-meta span::before { content: "◆ "; color: var(--accent); font-size: 8px; vertical-align: 2px; }
+
+  /* WORK — BENTO com TILES ATIVOS */
+  .section { padding-block: 120px; }
+  .sec-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 40px; }
+  h2 { font-size: clamp(1.9rem, 4.5vw, 3.2rem); font-weight: 700; letter-spacing: -0.03em; }
+  .sec-head span { color: var(--dim); font-size: 13px; }
+
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: 96px;
+    gap: 14px;
+  }
+  .tile {
+    border: 1px solid var(--hairline);
+    border-radius: 18px;
+    padding: 22px;
+    background: var(--bg-raise);
+    position: relative;
+    overflow: hidden;
+    transition: border-color .35s, transform .35s cubic-bezier(0.16,1,0.3,1);
+    display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  .tile:hover {
+    border-color: rgba(82, 242, 139, 0.5);
+    transform: translateY(-4px);
+  }
+  .tile h3 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; }
+  .tile .tag { font-size: 11px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  .tile .desc {
+    /* camada revelada no hover — tile ATIVO */
+    position: absolute; inset: 0;
+    padding: 22px;
+    background: linear-gradient(180deg, transparent 0%, var(--bg-raise) 38%);
+    opacity: 0; translate: 0 14px;
+    transition: opacity .4s, translate .4s cubic-bezier(0.16,1,0.3,1);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    font-size: 0.86rem; color: var(--dim); line-height: 1.55;
+    pointer-events: none;
+  }
+  .tile:hover .desc { opacity: 1; translate: 0 0; }
+  .tile .desc b { color: var(--accent); font-weight: 500; }
+
+  /* grid: 12 cols assimétrico com ritmo */
+  .t1 { grid-column: span 7; grid-row: span 2; }   /* cryptobotz destaque */
+  .t2 { grid-column: span 5; grid-row: span 2; }   /* DailyRoutine */
+  .t3 { grid-column: span 4; }                     /* tameru */
+  .t4 { grid-column: span 4; }                      /* tomawatchi */
+  .t5 { grid-column: span 4; }                      /* leadforge */
+
+  /* visual dentro do tile destaque */
+  .spark {
+    margin-top: 12px; height: 46px; width: 100%;
+    border: 1px solid var(--hairline); border-radius: 10px;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 18px, var(--hairline) 18px 19px),
+      linear-gradient(90deg, transparent, rgba(82,242,139,.25));
+    position: relative; overflow: hidden;
+  }
+  .spark::after {
+    content: ""; position: absolute; top: 0; bottom: 0; left: -30%;
+    width: 30%;
+    background: linear-gradient(90deg, transparent, rgba(82,242,139,.5), transparent);
+    animation: sweep 3.2s ease-in-out infinite;
+  }
+  @keyframes sweep { 60%,100% { left: 110%; } }
+
+  /* HISTÓRIA — barely-there: só tipografia e hairline */
+  .story { border-top: 1px solid var(--hairline); }
+  .story-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 64px; }
+  .story-grid .lead {
+    font-size: clamp(1.4rem, 2.8vw, 2rem);
+    line-height: 1.3; font-weight: 400; letter-spacing: -0.01em;
+  }
+  .story-grid .lead em { color: var(--accent); font-style: normal; }
+  .story-grid .side p { color: var(--dim); line-height: 1.75; font-weight: 300; margin-bottom: 16px; font-size: 0.98rem; }
+  .story-grid .side p b { color: var(--fg); font-weight: 500; }
+
+  /* STACK — linha hairline, mono */
+  .stack-rows { border-top: 1px solid var(--hairline); }
+  .srow { display: grid; grid-template-columns: 160px 1fr; gap: 24px; padding-block: 20px; border-bottom: 1px solid var(--hairline); align-items: baseline; }
+  .srow .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--dim); }
+  .srow .items { font-size: 1.15rem; font-weight: 300; display: flex; flex-wrap: wrap; gap: 6px 22px; }
+  .srow .items span { transition: all .25s; cursor: default; }
+  .srow .items span:hover { color: var(--accent); font-variation-settings: "wght" 600; }
+
+  /* FOOTER */
+  footer { padding: 120px 0 48px; }
+  .foot-big { font-size: clamp(2.4rem, 7vw, 5.8rem); font-weight: 700; letter-spacing: -0.04em; line-height: 1.02; margin-bottom: 40px; }
+  .foot-big a { color: var(--accent); border-bottom: 2px solid var(--hairline); transition: border-color .3s; }
+  .foot-big a:hover { border-color: var(--accent); }
+  .foot-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; color: var(--dim); font-size: 13px; }
+  .foot-meta a:hover { color: var(--accent); }
+
+  @media (max-width: 820px) {
+    .bento { grid-template-columns: repeat(6, 1fr); grid-auto-rows: 120px; }
+    .t1 { grid-column: span 6; grid-row: span 2; }
+    .t2 { grid-column: span 6; grid-row: span 2; }
+    .t3, .t4 { grid-column: span 3; }
+    .t5 { grid-column: span 6; }
+    .story-grid { grid-template-columns: 1fr; gap: 28px; }
+    .srow { grid-template-columns: 1fr; gap: 6px; }
+    nav .links { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body::after, .spark::after { animation: none; }
+    .tile .desc { opacity: 1; translate: none; position: static; background: none; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <span class="logo">rayson<em>.dev</em></span>
+  <div class="links">
+    <a href="#trabalhos">trabalhos</a>
+    <a href="#historia">história</a>
+    <a href="#stack">stack</a>
+    <a href="#contato">contato</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <section class="hero" id="top">
+    <p class="kicker">personal trainer virando dev · fortaleza, br</p>
+    <h1><span class="w">Treino</span> a disciplina.<br />Construo <span class="accent w">sistemas.</span></h1>
+    <p class="hero-sub">
+      Bots de trading, apps iOS e automações. A mentalidade é a mesma do treino:
+      <b>consistência, carga progressiva e teste antes de confiança</b>.
+    </p>
+    <div class="hero-meta">
+      <span>5 projetos ativos</span>
+      <span>122 testes verdes</span>
+      <span>2 plataformas apple</span>
+    </div>
+  </section>
+
+  <section class="section" id="trabalhos">
+    <div class="sec-head">
+      <h2>trabalhos</h2>
+      <span>passe o mouse: os tiles abrem</span>
+    </div>
+    <div class="bento">
+      <article class="tile t1">
+        <div class="spark"></div>
+        <p class="tag">python · trading</p>
+        <h3>cryptobotz</h3>
+        <div class="desc">Bot de trading algorítmico multi-exchange em paper trading. <b>Circuit breakers</b>, telemetria de risco e 122 testes: o rigor do treino aplicado ao capital.</div>
+      </article>
+      <article class="tile t2">
+        <p class="tag">swiftui · healthkit</p>
+        <h3>DailyRoutine</h3>
+        <div class="desc">App iOS de rotina, hábitos e tarefas com visual de terminal, <b>dashboard de pontuação</b> e relatórios semanais.</div>
+      </article>
+      <article class="tile t3">
+        <p class="tag">swift · watchos</p>
+        <h3>tameru</h3>
+        <div class="desc">Engine de contexto própria e <b>partículas interativas</b> no relógio.</div>
+      </article>
+      <article class="tile t4">
+        <p class="tag">swift · watchos</p>
+        <h3>tomawatchi</h3>
+        <div class="desc">Tamagotchi para Apple Watch com <b>árvore de evolução</b> ramificada.</div>
+      </article>
+      <article class="tile t5">
+        <p class="tag">python · agentes</p>
+        <h3>leadforge</h3>
+        <div class="desc">Prospecção B2B com <b>agentes de IA</b> modulares e exportação CSV.</div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section story" id="historia">
+    <div class="sec-head"><h2>história</h2></div>
+    <div class="story-grid">
+      <p class="lead">A parte que eu mais gostava <em>nunca foi a parte física</em>: era montar sistemas de hábito e medir progresso.</p>
+      <div class="side">
+        <p>Passei anos desenhando treino e rotina para dezenas de alunos em Fortaleza. O sistema em volta do treino (progresso medido, variável ajustada) sempre me prendeu mais que a banca.</p>
+        <p>Em transição para TI: o primeiro bot de trading virou um sistema com <b>testes, telemetria e circuit breakers</b>. O app de rotina que eu desenhava no papel virou um app iOS com HealthKit.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="stack">
+    <div class="sec-head"><h2>stack</h2></div>
+    <div class="stack-rows">
+      <div class="srow">
+        <span class="lbl">linguagens</span>
+        <div class="items"><span>Python</span><span>Swift</span></div>
+      </div>
+      <div class="srow">
+        <span class="lbl">mobile</span>
+        <div class="items"><span>SwiftUI</span><span>watchOS</span><span>HealthKit</span><span>WidgetKit</span><span>XcodeGen</span></div>
+      </div>
+      <div class="srow">
+        <span class="lbl">dados & bots</span>
+        <div class="items"><span>pandas</span><span>ccxt</span><span>Streamlit</span><span>pytest</span><span>SQLAlchemy</span><span>SQLite</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer id="contato">
+    <p class="foot-big">Tem um projeto?<br /><a href="mailto:rayson.severiano@gmail.com">Vamos conversar</a></p>
+    <div class="foot-meta">
+      <a href="https://github.com/ranzouu">github/ranzouu</a>
+      <a href="https://www.linkedin.com/in/rayson-severiano-a4a576140">linkedin/rayson-severiano</a>
+      <span>fortaleza, brasil</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+  // O ÚNICO momento cinético: scramble de entrada no headline. Uma vez, e para.
+  const h1 = document.querySelector("h1");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce) {
+    const walkers = [...h1.querySelectorAll(".w")];
+    const glyphs = "#$%&/()<>[]{}=+*";
+    let f = 0, total = 22;
+    (function tick() {
+      f++;
+      const done = f / total;
+      walkers.forEach((el) => {
+        const txt = el.textContent;
+        el.textContent = txt.split("").map((c, i) =>
+          i < done * txt.length ? c : glyphs[(Math.random() * glyphs.length) | 0]
+        ).join("");
+      });
+      if (f < total) requestAnimationFrame(tick);
+      else walkers.forEach((el) => el.dataset.t = el.textContent); // restore below
+    })();
+    // preserva o texto final (o scramble acima já restaura por progresso)
+  }
+</script>
+</body>
+</html>

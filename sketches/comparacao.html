@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Comparação — 3 direções pro portfólio</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #111; color: #eee; padding: 24px;
+  }
+  h1 { font-size: 20px; margin-bottom: 6px; }
+  .sub { color: #888; font-size: 13px; margin-bottom: 28px; }
+  .variant { margin-bottom: 40px; }
+  .variant h2 {
+    font-size: 15px; margin-bottom: 4px; color: #52f28b;
+  }
+  .variant p { font-size: 12.5px; color: #999; margin-bottom: 10px; }
+  .frame-wrap {
+    border: 1px solid #333; border-radius: 10px; overflow: hidden;
+    background: #000;
+  }
+  iframe {
+    width: 100%; height: 640px; border: 0; display: block;
+  }
+  .hint { font-size: 11px; color: #666; margin-top: 6px; }
+  .hint b { color: #aaa; }
+</style>
+</head>
+<body>
+<h1>Três direções pro seu portfólio</h1>
+<p class="sub">Mova o mouse dentro de cada frame pra sentir as interações. Cada um é um mockup funcional completo.</p>
+
+<div class="variant">
+  <h2>A — Cinético-Terminal</h2>
+  <p>Dark-first, verde profit, efeito decode no headline, marquee de stack, hover com preview. O "dev avançado" do que já existe.</p>
+  <div class="frame-wrap"><iframe src="../001-cinetico-terminal/index.html"></iframe></div>
+  <p class="hint"><b>Forte:</b> identidade dev/terminal coesa com seus projetos · <b>Frase:</b> "isonomy entre código e treino". Zero JS na versão final? Não — usa ~1KB de JS.</p>
+</div>
+
+<div class="variant">
+  <h2>B — Awwwards-Editorial</h2>
+  <p>Serif gigante, marquee de projetos, cards horizontais com scroll-snap, pull-quote na história, footer escuro dramático. Estética de estúdio premiado.</p>
+  <div class="frame-wrap"><iframe src="../002-awwwards-editorial/index.html"></iframe></div>
+  <p class="hint"><b>Forte:</b> o mais elegante e memorável · <b>Risco:</b> serif grande pode parecer "menos dev" pra recrutador técnico.</p>
+</div>
+
+<div class="variant">
+  <h2>C — Playground Interativo</h2>
+  <p>Partículas que seguem o mouse (homenagem ao tameru), nav pill flutuante, bento grid com física de mola, stats vivos. O mais "wow" no primeiro segundo.</p>
+  <div class="frame-wrap"><iframe src="../003-playground-webgl/index.html"></iframe></div>
+  <p class="hint"><b>Forte:</b> máximo dinamismo · <b>Risco:</b> o mais ousado; partículas pedem gosto por efeito.</p>
+</div>
+
+</body>
+</html>

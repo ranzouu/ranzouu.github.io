@@ -1,47 +1,139 @@
 ---
 ---
 <section class="hero" id="top">
-  <h1>Rayson <em>Rodrigues</em></h1>
+  <p class="kicker">personal trainer virando dev · fortaleza, br</p>
+  <h1 id="headline"><span class="w">Treino</span> a disciplina.<br />Construo <span class="accent w">sistemas.</span></h1>
   <p class="hero-sub">
-    Personal trainer virando dev. Construo bots, apps e sistemas.
+    Bots de trading, apps iOS e automações. A mentalidade é a mesma do treino:
+    <b>consistência, carga progressiva e teste antes de confiança</b>.
   </p>
+  <div class="hero-meta">
+    <span>5 projetos ativos</span>
+    <span>122 testes verdes</span>
+    <span>2 plataformas apple</span>
+  </div>
   <div class="hero-cta">
-    <a class="cta" href="#trabalhos">Ver projetos</a>
+    <a class="btn btn-primary" href="#trabalhos">ver projetos</a>
+    <a class="btn btn-ghost" href="#contato">fale comigo</a>
   </div>
 </section>
 
 <style>
   .hero {
-    min-height: 88dvh;
-    display: grid;
-    align-content: center;
+    min-height: 92dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     padding-block: var(--space-xl);
+  }
+
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--accent);
+    margin: 0 0 var(--space-s);
+    letter-spacing: 0.02em;
+  }
+
+  .kicker::before {
+    content: "> ";
+    opacity: 0.6;
   }
 
   h1 {
     font-family: var(--font-display);
-    font-weight: 500;
-    font-size: clamp(3rem, 9vw, 7.5rem);
-    line-height: 1.1;
-    letter-spacing: -0.015em;
+    font-size: clamp(3rem, 10.5vw, 8.6rem);
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    max-width: 15ch;
     margin: 0;
-    text-wrap: balance;
   }
 
-  h1 em {
-    font-style: italic;
-    font-weight: 400;
+  h1 .accent {
+    color: var(--accent);
+  }
+
+  /* cinética pontual: peso variável no hover; reduced-motion = estático */
+  h1 .w {
+    font-variation-settings: "wght" 700;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    h1 .w {
+      transition: font-variation-settings 0.5s ease;
+    }
+    h1:hover .w {
+      font-variation-settings: "wght" 300;
+    }
   }
 
   .hero-sub {
-    font-size: clamp(1.1rem, 2.4vw, 1.5rem);
-    color: var(--ink-soft);
-    max-width: 34ch;
     margin: var(--space-s) 0 0;
-    line-height: 1.4;
+    max-width: 50ch;
+    color: var(--dim);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .hero-sub b {
+    color: var(--fg);
+    font-weight: 500;
+  }
+
+  .hero-meta {
+    margin-top: var(--space-m);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--dim);
+    letter-spacing: 0.06em;
+  }
+
+  .hero-meta span::before {
+    content: "◆ ";
+    color: var(--accent);
+    font-size: 8px;
+    vertical-align: 2px;
   }
 
   .hero-cta {
-    margin-top: var(--space-l);
+    margin-top: var(--space-m);
+    display: flex;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-cta a {
+    text-decoration: none;
   }
 </style>
+
+<script>
+  // O único momento cinético: scramble de entrada, ~400ms, uma vez.
+  // Honra prefers-reduced-motion. Sem libs.
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const h1 = document.getElementById("headline");
+  if (!reduce && h1) {
+    const words = [...h1.querySelectorAll(".w")];
+    const glyphs = "#$%&/()<>[]{}=+*";
+    const originals = words.map((el) => el.textContent);
+    let f = 0;
+    const total = 22;
+    (function tick() {
+      f++;
+      const done = f / total;
+      words.forEach((el, wi) => {
+        const txt = originals[wi];
+        el.textContent = txt
+          .split("")
+          .map((c, i) => (i < done * txt.length ? c : glyphs[(Math.random() * glyphs.length) | 0]))
+          .join("");
+      });
+      if (f < total) requestAnimationFrame(tick);
+      else words.forEach((el, wi) => (el.textContent = originals[wi]));
+    })();
+  }
+</script>

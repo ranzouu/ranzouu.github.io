@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sketch B — Awwwards-Editorial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --paper: #f4f1ea;
+    --ink: #14161a;
+    --dim: #6e6a5f;
+    --accent: #0e7a3c;
+    --line: #dcd8cc;
+  }
+  body {
+    font-family: "Archivo", -apple-system, sans-serif;
+    background: var(--paper); color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--ink); color: var(--paper); }
+  a { color: inherit; text-decoration: none; }
+  .serif { font-family: "Instrument Serif", Georgia, serif; }
+
+  /* NAV fixo minimalista */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 36px;
+    mix-blend-mode: difference; color: #f4f1ea;
+    font-size: 14px;
+  }
+  nav .links { display: flex; gap: 28px; }
+  nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+  /* HERO tipográfico gigante */
+  .hero {
+    min-height: 100dvh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding-inline: 36px;
+    position: relative;
+  }
+  .hero h1 {
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: clamp(4rem, 13vw, 12rem);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    font-weight: 400;
+    text-wrap: balance;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero .line {
+    display: block;
+    overflow: hidden;
+  }
+  .hero .line span {
+    display: inline-block;
+    animation: rise-in 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .hero .line:nth-child(2) span { animation-delay: 0.12s; }
+  .hero .line:nth-child(3) span { animation-delay: 0.24s; }
+  @keyframes rise-in { from { translate: 0 110%; } }
+  .hero-foot {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-top: 56px;
+  }
+  .hero-foot p { max-width: 38ch; color: var(--dim); line-height: 1.55; font-size: 1.02rem; }
+  .scroll-hint {
+    font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim);
+    writing-mode: vertical-rl;
+    animation: bob 2s ease-in-out infinite;
+  }
+  @keyframes bob { 50% { translate: 0 8px; } }
+
+  /* MARQUEE serif gigante */
+  .marquee {
+    border-block: 1px solid var(--line);
+    padding-block: 8px;
+    overflow: hidden; white-space: nowrap;
+  }
+  .marquee .track {
+    display: inline-flex; gap: 40px;
+    font-family: "Instrument Serif", serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-style: italic;
+    animation: slide 30s linear infinite;
+  }
+  .marquee .track span { padding-inline: 20px; }
+  @keyframes slide { to { transform: translateX(-50%); } }
+
+  /* ÍNDICE HORIZONTAL de trabalhos */
+  .works {
+    padding-block: 120px 40px;
+  }
+  .works-head { padding-inline: 36px; margin-bottom: 48px; display: flex; justify-content: space-between; align-items: baseline; }
+  h2 { font-family: "Instrument Serif", serif; font-size: clamp(2.4rem, 6vw, 4.5rem); font-weight: 400; }
+  .works-head span { color: var(--dim); font-size: 14px; }
+  .h-scroll {
+    display: flex; gap: 24px;
+    overflow-x: auto;
+    padding-inline: 36px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .h-scroll::-webkit-scrollbar { display: none; }
+  .work-card {
+    flex: 0 0 min(420px, 78vw);
+    scroll-snap-align: start;
+    border: 1px solid var(--line);
+    background: #fbf9f4;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s;
+  }
+  .work-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 32px 64px -32px rgba(20, 22, 26, 0.35);
+  }
+  .work-card .thumb {
+    height: 240px;
+    background: linear-gradient(135deg, #e8e4d8, #d4cfc0);
+    border-bottom: 1px solid var(--line);
+    display: grid; place-items: center;
+    font-family: "Instrument Serif", serif; font-style: italic;
+    font-size: 2.6rem; color: #b3ad9c;
+  }
+  .work-card .body { padding: 24px; }
+  .work-card h3 { font-family: "Instrument Serif", serif; font-size: 1.9rem; font-weight: 400; margin-bottom: 6px; }
+  .work-card h3:hover { color: var(--accent); font-style: italic; }
+  .work-card .meta { font-size: 12px; color: var(--dim); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; }
+  .work-card p { font-size: 0.92rem; color: var(--dim); line-height: 1.55; }
+
+  /* HISTÓRIA com pull-quote gigante */
+  .story { padding: 120px 36px; }
+  .story blockquote {
+    font-family: "Instrument Serif", serif;
+    font-size: clamp(1.8rem, 4.5vw, 3.6rem);
+    line-height: 1.15;
+    font-weight: 400;
+    max-width: 22ch;
+    text-wrap: balance;
+  }
+  .story blockquote em { color: var(--accent); }
+  .story .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 56px; }
+  .story .cols p { color: var(--dim); line-height: 1.7; font-size: 1.02rem; }
+
+  /* STACK em linha editorial */
+  .stack { padding: 40px 36px 120px; border-top: 1px solid var(--line); }
+  .stack-row { display: flex; align-items: baseline; gap: 24px; padding-block: 18px; border-bottom: 1px solid var(--line); }
+  .stack-row .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--dim); min-width: 140px; }
+  .stack-row .items { font-size: 1.25rem; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  .stack-row .items span:hover { color: var(--accent); font-style: italic; cursor: default; }
+
+  /* FOOTER gigante */
+  footer {
+    background: var(--ink); color: var(--paper);
+    padding: 110px 36px 40px;
+  }
+  footer .big {
+    font-family: "Instrument Serif", serif;
+    font-size: clamp(2.6rem, 8vw, 7rem);
+    line-height: 1;
+    margin-bottom: 64px;
+  }
+  footer .big a { font-style: italic; color: #9fe8b8; border-bottom: 3px solid #2a4a36; transition: border-color 0.3s; }
+  footer .big a:hover { border-color: #9fe8b8; }
+  footer .meta { display: flex; gap: 32px; font-size: 13px; color: #8b887c; }
+  footer .meta a:hover { color: #9fe8b8; }
+
+  @media (max-width: 768px) {
+    .story .cols { grid-template-columns: 1fr; }
+    .hero-foot { flex-direction: column; align-items: flex-start; gap: 32px; }
+    .scroll-hint { display: none; }
+    .stack-row { flex-direction: column; gap: 8px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee .track { animation: none; }
+    .hero .line span { animation: none; }
+    .scroll-hint { animation: none; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <span class="serif" style="font-style: italic; font-size: 18px;">Rayson Rodrigues</span>
+  <div class="links">
+    <a href="#trabalhos">Trabalhos</a>
+    <a href="#historia">História</a>
+    <a href="#stack">Stack</a>
+    <a href="#contato">Contato</a>
+  </div>
+</nav>
+
+<section class="hero" id="top">
+  <h1>
+    <span class="line"><span>Personal trainer</span></span>
+    <span class="line"><span><em>virando dev.</em></span></span>
+    <span class="line"><span>Bots, apps, sistemas.</span></span>
+  </h1>
+  <div class="hero-foot">
+    <p>Construo bots de trading, apps iOS e automações. Consistência, carga progressiva e teste antes de confiança: a mentalidade do treino aplicada ao código.</p>
+    <span class="scroll-hint">role para explorar</span>
+  </div>
+</section>
+
+<div class="marquee">
+  <div class="track">
+    <span>cryptobotz</span><span>·</span><span>DailyRoutine</span><span>·</span><span>tameru</span><span>·</span><span>tomawatchi</span><span>·</span><span>leadforge</span><span>·</span>
+    <span>cryptobotz</span><span>·</span><span>DailyRoutine</span><span>·</span><span>tameru</span><span>·</span><span>tomawatchi</span><span>·</span><span>leadforge</span><span>·</span>
+  </div>
+</div>
+
+<section class="works" id="trabalhos">
+  <div class="works-head">
+    <h2>Trabalhos selecionados</h2>
+    <span>arraste para o lado →</span>
+  </div>
+  <div class="h-scroll">
+    <article class="work-card">
+      <div class="thumb">cryptobotz</div>
+      <div class="body">
+        <p class="meta">python · ccxt · pytest</p>
+        <h3>cryptobotz</h3>
+        <p>Bot de trading algorítmico multi-exchange em paper trading, com circuit breakers, telemetria de risco e 122 testes.</p>
+      </div>
+    </article>
+    <article class="work-card">
+      <div class="thumb">DailyRoutine</div>
+      <div class="body">
+        <p class="meta">swiftui · healthkit</p>
+        <h3>DailyRoutine</h3>
+        <p>App iOS de rotina, hábitos e tarefas com visual de terminal, dashboard de pontuação e relatórios semanais.</p>
+      </div>
+    </article>
+    <article class="work-card">
+      <div class="thumb">tameru</div>
+      <div class="body">
+        <p class="meta">swift · watchos</p>
+        <h3>tameru</h3>
+        <p>App iOS e watchOS com engine de contexto própria, arquitetura hexagonal e canvas de partículas no relógio.</p>
+      </div>
+    </article>
+    <article class="work-card">
+      <div class="thumb">tomawatchi</div>
+      <div class="body">
+        <p class="meta">swift · watchos</p>
+        <h3>tomawatchi</h3>
+        <p>Tamagotchi para o Apple Watch, com árvore de evolução ramificada e criaturas desenhadas do zero.</p>
+      </div>
+    </article>
+    <article class="work-card">
+      <div class="thumb">leadforge</div>
+      <div class="body">
+        <p class="meta">python · streamlit · groq</p>
+        <h3>leadforge</h3>
+        <p>Sistema de prospecção B2B com agentes de IA modulares: fontes plugáveis, qualificação por LLM e exportação CSV.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="story" id="historia">
+  <blockquote>"A parte que eu mais gostava <em>nunca foi a parte física</em>: era montar sistemas de hábito e medir progresso."</blockquote>
+  <div class="cols">
+    <p>Passei anos desenhando treino e rotina para dezenas de alunos em Fortaleza. O que me prendia não era a banca nem o agachamento: era o sistema em volta dele, o progresso medido, a variável ajustada até a rotina engrenar.</p>
+    <p>Em transição para TI, cada projeto segue essa lógica: o primeiro bot de trading virou um sistema com testes, telemetria e circuit breakers. O app de rotina que eu desenhava no papel virou um app iOS com HealthKit e relatórios.</p>
+  </div>
+</section>
+
+<section class="stack" id="stack">
+  <div class="stack-row">
+    <span class="label">linguagens</span>
+    <div class="items"><span>Python</span><span>Swift</span></div>
+  </div>
+  <div class="stack-row">
+    <span class="label">mobile</span>
+    <div class="items"><span>SwiftUI</span><span>watchOS</span><span>HealthKit</span><span>WidgetKit</span><span>XcodeGen</span></div>
+  </div>
+  <div class="stack-row">
+    <span class="label">dados & bots</span>
+    <div class="items"><span>pandas</span><span>ccxt</span><span>Streamlit</span><span>pytest</span><span>SQLAlchemy</span><span>SQLite</span></div>
+  </div>
+</section>
+
+<footer id="contato">
+  <p class="big">Tem um projeto?<br /><a href="mailto:rayson.severiano@gmail.com">Vamos conversar</a></p>
+  <div class="meta">
+    <a href="https://github.com/ranzouu">GitHub</a>
+    <a href="https://www.linkedin.com/in/rayson-severiano-a4a576140">LinkedIn</a>
+    <span>Fortaleza, Brasil</span>
+  </div>
+</footer>
+</body>
+</html>
