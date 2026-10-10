@@ -38,7 +38,7 @@ const { title, description } = Astro.props;
     <slot />
 
     <script>
-      // Revelações lentas (1.4s): ativadas suavemente uma vez só ao entrar na tela
+      // Revelações orgânicas: disparam antecipadamente via rootMargin de 250px
       const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (!reduceMotion) {
         const observer = new IntersectionObserver(
@@ -50,9 +50,21 @@ const { title, description } = Astro.props;
               }
             });
           },
-          { threshold: 0.15 }
+          { rootMargin: "250px 0px", threshold: 0.01 }
         );
+
         document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+
+        // Se o usuário clicar em uma âncora (#trabalhos, etc), revela a seção imediatamente
+        window.addEventListener("hashchange", () => {
+          if (location.hash) {
+            const target = document.querySelector(location.hash);
+            if (target) {
+              target.classList.add("in");
+              target.querySelectorAll(".reveal").forEach((el) => el.classList.add("in"));
+            }
+          }
+        });
       } else {
         document.querySelectorAll(".reveal").forEach((el) => el.classList.add("in"));
       }
