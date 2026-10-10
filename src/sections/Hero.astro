@@ -112,28 +112,60 @@
 </style>
 
 <script>
-  // O único momento cinético: scramble de entrada, ~400ms, uma vez.
-  // Honra prefers-reduced-motion. Sem libs.
+  // Headline criptográfico: repouso = caracteres codificados;
+  // hover (ou foco via teclado) revela o texto real letra a letra.
+  // reduced-motion = texto direto, sem scramble.
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const h1 = document.getElementById("headline");
-  if (!reduce && h1) {
+  if (h1 && !reduce) {
     const words = [...h1.querySelectorAll(".w")];
-    const glyphs = "#$%&/()<>[]{}=+*";
     const originals = words.map((el) => el.textContent);
-    let f = 0;
-    const total = 22;
-    (function tick() {
-      f++;
-      const done = f / total;
+    const glyphs = "#$%&/()<>[]{}=+*";
+    let raf = null;
+    let hover = false;
+
+    const scramble = (progress) => {
       words.forEach((el, wi) => {
         const txt = originals[wi];
         el.textContent = txt
           .split("")
-          .map((c, i) => (i < done * txt.length ? c : glyphs[(Math.random() * glyphs.length) | 0]))
+          .map((c, i) =>
+            i < progress * txt.length ? c : glyphs[(Math.random() * glyphs.length) | 0]
+          )
           .join("");
       });
-      if (f < total) requestAnimationFrame(tick);
-      else words.forEach((el, wi) => (el.textContent = originals[wi]));
-    })();
+    };
+
+    const play = (to, from = 0, ms = 900) => {
+      if (raf) cancelAnimationFrame(raf);
+      const t0 = performance.now();
+      (function tick(now) {
+        const p = Math.min((now - t0) / ms, 1);
+        scramble(from + (to - from) * p);
+        if (p < 1) raf = requestAnimationFrame(tick);
+      })(t0);
+    };
+
+    // estado de repouso: codificado
+    scramble(0);
+
+    h1.addEventListener("pointerenter", () => {
+      hover = true;
+      play(1);
+    });
+    h1.addEventListener("pointerleave", () => {
+      hover = false;
+      play(0);
+    });
+    h1.addEventListener("focusin", () => play(1));
+    h1.addEventListener("focusout", () => play(0));
+
+    // primeira visita: decodifica como chamada, depois volta a codificar
+    setTimeout(() => {
+      play(1, 0, 700);
+      setTimeout(() => {
+        if (!hover) play(0, 1, 500);
+      }, 1600);
+    }, 300);
   }
 </script>
