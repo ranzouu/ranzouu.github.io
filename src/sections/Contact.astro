@@ -3,14 +3,32 @@ const email = "rayson.severiano@gmail.com";
 const github = "https://github.com/ranzouu";
 const linkedin = "https://www.linkedin.com/in/rayson-severiano-a4a576140";
 ---
+
 <footer class="contact reveal" id="contato">
-  <p class="big">
-    Tem um projeto?<br />
-    <a href={`mailto:${email}`}>Vamos conversar</a>
-  </p>
-  <div class="meta">
-    <a href={github} rel="me noopener" target="_blank">github/ranzouu</a>
-    <a href={linkedin} rel="me noopener" target="_blank">linkedin/rayson-severiano</a>
+  <div class="foot-main">
+    <p class="foot-cta">
+      Tem um projeto?<br />
+      <a href={`mailto:${email}`}>Vamos conversar</a>
+    </p>
+
+    <!-- Hanko do Rodapé: selo de conclusão da obra -->
+    <svg class="hanko-foot" viewBox="0 0 52 52" aria-label="Selo Hanko de Rayson Rodrigues">
+      <rect x="2" y="2" width="48" height="48" rx="6" fill="#b5382a" />
+      <text
+        x="26"
+        y="36"
+        font-family="Shippori Mincho, Georgia, serif"
+        font-size="28"
+        font-weight="600"
+        fill="#f3efe6"
+        text-anchor="middle"
+      >R</text>
+    </svg>
+  </div>
+
+  <div class="foot-meta">
+    <a href={github} rel="me noopener noreferrer" target="_blank">github/ranzouu</a>
+    <a href={linkedin} rel="me noopener noreferrer" target="_blank">linkedin/rayson-severiano</a>
     <span>fortaleza, brasil</span>
   </div>
 </footer>
@@ -18,39 +36,75 @@ const linkedin = "https://www.linkedin.com/in/rayson-severiano-a4a576140";
 <style>
   .contact {
     border-top: 1px solid var(--hairline);
-    padding-block: var(--space-xl) var(--space-m);
+    padding-block: var(--space-l) var(--space-m);
+    position: relative;
   }
 
-  .big {
-    font-size: clamp(2.4rem, 7vw, 5.8rem);
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    line-height: 1.02;
-    margin: 0 0 var(--space-l);
-  }
-
-  .big a {
-    color: var(--accent);
-    text-decoration: none;
-    border-bottom: 2px solid var(--hairline);
-    transition: border-color 0.3s;
-  }
-
-  .big a:hover {
-    border-color: var(--accent);
-  }
-
-  .meta {
+  .foot-main {
     display: flex;
     justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    color: var(--dim);
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
+    align-items: flex-end;
+    gap: 32px;
   }
 
-  .meta a:hover {
-    color: var(--accent);
+  .foot-cta {
+    font-family: var(--mincho);
+    font-size: clamp(2rem, 4.8vw, 3.4rem);
+    font-weight: 500;
+    line-height: 1.35;
+    max-width: 16ch;
+    color: var(--ink);
+  }
+
+  .foot-cta a {
+    color: var(--seal);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.4s ease, opacity 0.4s ease;
+  }
+
+  .foot-cta a:hover {
+    border-color: var(--seal);
+    opacity: 0.85;
+  }
+
+  .hanko-foot {
+    width: 46px;
+    height: 46px;
+    opacity: 0.95;
+    flex-shrink: 0;
+    margin-bottom: 8px;
+    transition: transform 0.4s ease;
+    cursor: default;
+  }
+
+  .hanko-foot:hover {
+    transform: rotate(3deg) scale(1.06);
+  }
+
+  .foot-meta {
+    margin-top: clamp(48px, 8vh, 80px);
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: clamp(20px, 4vw, 48px);
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-3);
+  }
+
+  .foot-meta a {
+    transition: color 0.3s ease;
+  }
+
+  .foot-meta a:hover {
+    color: var(--ink);
+  }
+
+  @media (max-width: 640px) {
+    .foot-main {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 </style>
