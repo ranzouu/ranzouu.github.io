@@ -21,7 +21,7 @@ const kanjiNumbers = ["一", "二", "三"];
           <a href={p.href} target="_blank" rel="noopener noreferrer" class="link">
             <h3 class="name">{p.name} <span class="arrow">↗</span></h3>
           </a>
-          <p class="stack">{p.stack.toLowerCase()}</p>
+          <p class="tech">{p.stack.toLowerCase()}</p>
           <p class="desc">{p.description}</p>
         </div>
       </article>
@@ -127,7 +127,7 @@ const kanjiNumbers = ["一", "二", "三"];
     translate: 0 0;
   }
 
-  .stack {
+  .tech {
     font-family: var(--mono);
     font-size: 0.72rem;
     letter-spacing: 0.16em;
