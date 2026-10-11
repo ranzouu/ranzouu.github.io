@@ -1,0 +1,67 @@
+name: Atualizar feed de commits
+
+on:
+  schedule:
+    - cron: "0 9 * * *" # 09:00 UTC = 06:00 Fortaleza, todo dia
+  workflow_dispatch: # botão manual também
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Buscar commits recentes e regenerar src/data/commits.ts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - << 'EOF'
+          import subprocess, json
+
+          repos = ["ranzouu.github.io", "EFI-T480-ThinkPad", "dashboard-vendas-financeiro",
+                   "pokemon-team-analyzer", "pokevgc-cli", "OmniAstra"]
+          feed = []
+          for repo in repos:
+              try:
+                  r = subprocess.run(
+                      ["gh", "api", f"repos/ranzouu/{repo}/commits?per_page=3",
+                       "--jq", '.[] | {sha: .sha[0:7], msg: (.commit.message | split("\n")[0]), date: .commit.author.date}'],
+                      capture_output=True, text=True, timeout=30)
+                  for line in r.stdout.strip().split("}\n{"):
+                      if not line.strip():
+                          continue
+                      try:
+                          line = '{' + line if not line.startswith('{') else line
+                          line = line + '}' if not line.endswith('}') else line
+                          c = json.loads(line)
+                          feed.append({"repo": repo, "sha": c["sha"], "msg": c["msg"], "date": c["date"]})
+                      except Exception:
+                          pass
+              except Exception:
+                  pass
+
+          feed.sort(key=lambda c: c["date"], reverse=True)
+          feed = feed[:8]
+
+          ts = "// Gerado automaticamente pelo GitHub Action (daily). NAO editar a mao.\n"
+          ts += "export interface Commit {\n  repo: string;\n  sha: string;\n  msg: string;\n  date: string;\n}\n\n"
+          ts += "export const recentCommits: Commit[] = [\n"
+          for c in feed:
+              msg = c["msg"].replace("\\", "\\\\").replace('"', '\\"')
+              ts += f'  {{ repo: "{c["repo"]}", sha: "{c["sha"]}", msg: "{msg}", date: "{c["date"]}" }},\n'
+          ts += "];\n"
+
+          with open("src/data/commits.ts", "w") as f:
+              f.write(ts)
+          print(f"{len(feed)} commits escritos")
+          EOF
+
+      - name: Commit se mudou
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet src/data/commits.ts && echo "sem mudanças" || (git add src/data/commits.ts && git commit -m "chore: atualiza feed de commits [bot]" && git push)

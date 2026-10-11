@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900">
+  <defs>
+    <!-- neblina: blur suave nas camadas distantes -->
+    <filter id="mist1" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="mist2" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+    <!-- pincel irregular -->
+    <filter id="brush" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.05" numOctaves="4" seed="11" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="18"/>
+    </filter>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6f1e3"/>
+      <stop offset="0.55" stop-color="#f3ecdb"/>
+      <stop offset="1" stop-color="#e9dfc8"/>
+    </linearGradient>
+    <linearGradient id="gold-mist" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c9a227" stop-opacity="0.0"/>
+      <stop offset="0.7" stop-color="#c9a227" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#c9a227" stop-opacity="0.30"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ceu de papel dourado -->
+  <rect width="1500" height="900" fill="url(#sky)"/>
+
+  <!-- sol nascente vermelhao (hinomaru distorcido) -->
+  <circle cx="1120" cy="285" r="88" fill="#b5382a" opacity="0.85" filter="url(#brush)"/>
+
+  <!-- nuvens douradas em faixa (estilo kumogata) -->
+  <g filter="url(#mist1)" opacity="0.5">
+    <path d="M 0 340 C 260 300, 420 380, 700 340 C 980 300, 1180 380, 1500 330 L 1500 420 L 0 420 Z" fill="url(#gold-mist)"/>
+  </g>
+
+  <!-- montanha distante: indigo claro na neblina -->
+  <g filter="url(#mist1)">
+    <path d="M -50 620 L 240 330 L 400 470 L 560 350 L 760 620 Z" fill="#7d95b5" opacity="0.5"/>
+  </g>
+
+  <!-- montanha media: indigo -->
+  <g filter="url(#mist2)">
+    <path d="M 320 900 L 620 400 L 780 560 L 940 430 L 1250 900 Z" fill="#3d5a80" opacity="0.55"/>
+  </g>
+
+  <!-- montanha frontal: indigo profundo com pinceladas -->
+  <g filter="url(#brush)">
+    <path d="M 80 900 L 430 480 L 620 660 L 820 520 L 1160 900 Z" fill="#2b4c7e" opacity="0.8"/>
+    <!-- textura de encosta: linhas de tinta -->
+    <path d="M 430 480 L 500 560 M 430 480 L 460 600 M 620 660 L 700 740 M 820 520 L 880 620"
+          stroke="#1c1913" stroke-width="2" opacity="0.12" fill="none"/>
+  </g>
+
+  <!-- neblina rasteira dourada -->
+  <g filter="url(#mist1)" opacity="0.55">
+    <ellipse cx="400" cy="860" rx="700" ry="90" fill="#e9dfc8"/>
+    <ellipse cx="1100" cy="880" rx="600" ry="70" fill="#f3ecdb"/>
+  </g>
+
+  <!-- pinheiro solitario no penhasco (motim sumi-e colorido) -->
+  <g filter="url(#brush)" opacity="0.9">
+    <path d="M 1180 900 L 1190 700 L 1200 640" stroke="#1c1913" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M 1195 690 C 1140 660, 1120 610, 1135 580 C 1160 620, 1180 640, 1195 690" fill="#2d5a3d" opacity="0.85"/>
+    <path d="M 1198 640 C 1250 620, 1270 580, 1258 550 C 1235 590, 1215 610, 1198 640" fill="#2d5a3d" opacity="0.7"/>
+    <path d="M 1192 720 C 1150 710, 1130 680, 1140 660 C 1160 690, 1180 700, 1192 720" fill="#2d5a3d" opacity="0.6"/>
+  </g>
+
+  <!-- aves distantes (pinceladas minimalistas) -->
+  <g stroke="#1c1913" stroke-width="2.5" fill="none" opacity="0.55" stroke-linecap="round">
+    <path d="M 300 240 Q 315 228 330 240 M 330 240 Q 345 228 360 240"/>
+    <path d="M 380 290 Q 392 280 404 290 M 404 290 Q 416 280 428 290"/>
+    <path d="M 260 320 Q 270 312 280 320 M 280 320 Q 290 312 300 320"/>
+  </g>
+</svg>

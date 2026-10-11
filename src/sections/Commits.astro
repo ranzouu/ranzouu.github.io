@@ -1,0 +1,149 @@
+---
+import { recentCommits } from "../data/commits";
+
+const fmtDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+  });
+---
+
+<section class="commits glass-block reveal" id="commits">
+  <div class="head">
+    <span class="kanji" aria-hidden="true">近</span>
+    <div>
+      <h2 class="title">últimos commits</h2>
+      <p class="sub">o que as mãos fizeram recentemente, direto do GitHub</p>
+    </div>
+  </div>
+
+  <ol class="feed">
+    {recentCommits.slice(0, 6).map((c) => (
+      <li class="row">
+        <span class="date">{fmtDate(c.date)}</span>
+        <span class="msg">{c.msg}</span>
+        <a
+          class="repo"
+          href={`https://github.com/ranzouu/${c.repo}/commit/${c.sha}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {c.repo}<span class="sha"> · {c.sha}</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+
+  <a class="all" href="https://github.com/ranzouu" target="_blank" rel="noopener noreferrer">
+    ver tudo no github ↗
+  </a>
+</section>
+
+<style>
+  .commits {
+    margin-block: var(--space-l);
+    padding: clamp(1.8rem, 4vw, 3rem);
+  }
+
+  .head {
+    display: flex;
+    gap: 1.2rem;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .kanji {
+    font-size: 2.2rem;
+    color: var(--seal);
+    opacity: 0.8;
+    line-height: 1;
+  }
+
+  .title {
+    font-family: var(--mincho);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .sub {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-3);
+    margin-top: 0.3rem;
+  }
+
+  .feed {
+    list-style: none;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 72px 1fr auto;
+    gap: 1.2rem;
+    align-items: baseline;
+    padding-block: 1rem;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .date {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--ink-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .msg {
+    font-size: 0.95rem;
+    color: var(--ink);
+    line-height: 1.7;
+    font-weight: 400;
+  }
+
+  .repo {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-3);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+  }
+
+  .repo:hover {
+    color: var(--seal);
+  }
+
+  .sha {
+    opacity: 0.55;
+  }
+
+  .all {
+    display: inline-block;
+    margin-top: 1.6rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 3px;
+    transition: color 0.3s, border-color 0.3s;
+  }
+
+  .all:hover {
+    color: var(--seal);
+    border-color: var(--seal);
+  }
+
+  @media (max-width: 640px) {
+    .row {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+    }
+    .date {
+      order: 2;
+    }
+  }
+</style>

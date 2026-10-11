@@ -1,69 +1,73 @@
 ---
 ---
 <section class="hero" id="top">
-  <!-- Ensō: círculo de tinta zen desenhado em SVG com deformação de pincel real -->
-  <svg class="enso-wrap" viewBox="0 0 400 400" aria-hidden="true">
-    <defs>
-      <filter id="brush-enso">
-        <feTurbulence
-          type="fractalNoise"
-          baseFrequency="0.035 0.09"
-          numOctaves="4"
-          seed="7"
-          result="noise"
-        />
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="14" />
-      </filter>
-    </defs>
-    <g filter="url(#brush-enso)">
-      <path
-        d="M 330 105 A 138 142 0 1 0 336 118"
+  <!-- Ensō-janela: o círculo recorta a arte do fundo em vez de competir com ela -->
+  <div class="enso-window" aria-hidden="true">
+    <svg viewBox="0 0 400 400">
+      <defs>
+        <!-- anel de tinta com borda de pincel irregular -->
+        <filter id="brush-enso">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.035 0.09"
+            numOctaves="4"
+            seed="7"
+            result="noise"
+          />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" />
+        </filter>
+        <!-- a máscara: dentro do anel, a arte do fundo aparece -->
+        <mask id="enso-cut">
+          <path
+            d="M 200 52 A 148 148 0 1 1 199 52 Z"
+            fill="#fff"
+            filter="url(#brush-enso)"
+          />
+        </mask>
+      </defs>
+      <!-- aro: um traço fino em cinábrio, como lacre ao redor da janela -->
+      <circle
+        cx="200"
+        cy="200"
+        r="148"
         fill="none"
-        stroke="#1c1913"
-        stroke-width="14"
-        stroke-linecap="round"
-        opacity="0.13"
+        stroke="#b5382a"
+        stroke-width="3"
+        opacity="0.7"
+        filter="url(#brush-enso)"
       />
-      <path
-        d="M 322 96 A 136 140 0 0 0 268 54"
-        fill="none"
-        stroke="#1c1913"
-        stroke-width="9"
-        stroke-linecap="round"
-        opacity="0.09"
-      />
-      <path
-        d="M 345 190 A 128 130 0 0 1 336 118"
-        fill="none"
-        stroke="#1c1913"
-        stroke-width="5"
-        stroke-linecap="round"
-        opacity="0.06"
-      />
-    </g>
-  </svg>
+      <!-- janela: mostra o fundo NITIDO dentro do círculo (fora dele, o vidro escurece) -->
+      <circle cx="200" cy="200" r="144" fill="rgba(243,239,230,0.78)" />
+    </svg>
+  </div>
 
-  <p class="kicker">portfólio &middot; dois mil e vinte e seis</p>
-  
-  <h1 id="headline">
-    Personal trainer virando <em>dev</em>.<br />Construo sistemas.
-  </h1>
+  <div class="hero-inner">
+    <p class="kicker">fortaleza, brasil &middot; dois mil e vinte e seis</p>
 
-  <p class="hero-sub">
-    Bots de trading, apps iOS e automações. A mentalidade é a mesma do treino:
-    <b>consistência, carga progressiva e teste antes de confiança</b>.
-  </p>
+    <h1 id="headline">Rayson Rodrigues.</h1>
 
-  <div class="hero-bottom">
+    <p class="hero-role">
+      Personal trainer virando <em>desenvolvedor</em>.
+    </p>
+
+    <p class="hero-sub">
+      Passi anos desenhando treino e rotina para dezenas de alunos. O que me
+      prendia nunca era a parte física: era <b>montar sistemas de hábito</b>,
+      medir progresso e ajustar variáveis até engrenar. Hoje faço a mesma
+      coisa com código: bots de trading, apps iOS e automações.
+    </p>
+
+    <p class="hero-credo">
+      Consistência, carga progressiva, teste antes de confiança.
+    </p>
+
     <div class="hero-links">
-      <a href="#trabalhos">trabalhos</a>
-      <a href="#historia">história</a>
-      <a href="#ferramentas">stack</a>
+      <a href="#commits">últimos commits</a>
+      <a href="#projetos">projetos finalizados</a>
       <a href="#contato">contato</a>
     </div>
 
-    <!-- Hanko do Hero: selo vermelho de assinatura tradicional em cinábrio -->
-    <svg class="hanko-hero" viewBox="0 0 52 52" aria-label="Selo Hanko de Rayson Rodrigues">
+    <svg class="hanko" viewBox="0 0 52 52" aria-label="Selo Hanko de Rayson Rodrigues">
       <rect x="2" y="2" width="48" height="48" rx="6" fill="#b5382a" />
       <text
         x="26"
@@ -80,15 +84,14 @@
 
 <style>
   .hero {
-    min-height: 88dvh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     position: relative;
-    padding-block: clamp(48px, 8vh, 88px);
+    padding-block: clamp(48px, 10vh, 110px);
   }
 
-  /* Animação suave inicial do Hero em CSS puro (LCP amigável) */
   @media (prefers-reduced-motion: no-preference) {
     .hero {
       animation: heroFade 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -105,55 +108,90 @@
     }
   }
 
-  /* Ensō flutuando atrás do headline */
-  .enso-wrap {
+  .hero-inner {
+    background: var(--glass-strong);
+    backdrop-filter: blur(14px) saturate(1.05);
+    -webkit-backdrop-filter: blur(14px) saturate(1.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    padding: clamp(2rem, 4.5vw, 3.5rem);
+    max-width: 620px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .hero-inner {
+      background: rgba(243, 239, 230, 0.97);
+    }
+  }
+
+  /* Ensō: arte de fundo DENTRO do painel, atrás do texto (z-0),
+     ancorado no canto direito onde não há texto */
+  .enso-window {
     position: absolute;
-    right: clamp(-40px, 3vw, 30px);
-    top: 45%;
-    translate: 0 -50%;
-    width: clamp(280px, 38vw, 480px);
-    opacity: 0.95;
-    pointer-events: none;
+    right: -70px;
+    top: -60px;
+    width: clamp(240px, 32vw, 380px);
+    aspect-ratio: 1;
     z-index: 0;
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  .enso-window svg {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 
   .kicker {
+    position: relative;
+    z-index: 1;
     font-family: var(--mono);
     font-size: 0.72rem;
     letter-spacing: 0.28em;
     color: var(--ink-3);
-    margin-bottom: 1.5rem;
+    margin: 0 0 1.8rem;
     text-transform: uppercase;
-    position: relative;
-    z-index: 1;
   }
 
   h1 {
-    font-family: var(--mincho);
-    font-weight: 500;
-    font-size: clamp(2.2rem, 5.2vw, 4.2rem);
-    line-height: 1.22;
-    letter-spacing: 0.01em;
-    max-width: 16ch;
-    text-wrap: balance;
     position: relative;
     z-index: 1;
+    font-family: var(--mincho);
+    font-weight: 500;
+    font-size: clamp(2.6rem, 7vw, 4.6rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
   }
 
-  h1 em {
+  .hero-role {
+    position: relative;
+    z-index: 1;
+    margin-top: 1.1rem;
+    font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+    color: var(--ink-2);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .hero-role em {
     font-style: normal;
     color: var(--seal);
   }
 
   .hero-sub {
-    margin-top: 1.6rem;
-    max-width: 46ch;
-    font-size: 1.05rem;
-    line-height: 1.9;
-    color: var(--ink-2);
-    font-weight: 400;
     position: relative;
     z-index: 1;
+    margin-top: 1.6rem;
+    max-width: 48ch;
+    font-size: 1.02rem;
+    line-height: 2;
+    color: var(--ink-2);
   }
 
   .hero-sub b {
@@ -161,16 +199,22 @@
     color: var(--ink);
   }
 
-  .hero-bottom {
-    margin-top: clamp(2rem, 5vh, 3.2rem);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+  .hero-credo {
     position: relative;
     z-index: 1;
+    margin-top: 1.4rem;
+    font-size: 0.92rem;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+    border-left: 2px solid var(--seal);
+    padding-left: 1rem;
   }
 
   .hero-links {
+    position: relative;
+    z-index: 1;
+    margin-top: 2.2rem;
     display: flex;
     flex-wrap: wrap;
     gap: clamp(18px, 3.5vw, 36px);
@@ -190,31 +234,33 @@
     color: var(--seal);
   }
 
-  /* Hanko do Hero alinhado na base */
-  .hanko-hero {
-    width: 44px;
-    height: 44px;
+  .hanko {
+    position: absolute;
+    z-index: 2;
+    right: clamp(1rem, 3vw, 2rem);
+    bottom: clamp(1rem, 3vw, 2rem);
+    width: 40px;
     opacity: 0.95;
-    flex-shrink: 0;
-    transition: transform 0.4s ease, opacity 0.4s ease;
-    cursor: default;
+    transition: transform 0.4s ease;
   }
 
-  .hanko-hero:hover {
+  .hanko:hover {
     transform: rotate(-3deg) scale(1.05);
   }
 
   @media (max-width: 760px) {
-    .enso-wrap {
-      opacity: 0.45;
-      right: -60px;
-      width: 290px;
+    .enso-window {
+      opacity: 0.4;
+      right: -110px;
+      width: 280px;
     }
-
-    .hero-bottom {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 2rem;
+    .hero-inner {
+      padding: 1.6rem;
+    }
+    .hanko {
+      position: static;
+      margin-top: 2rem;
+      display: block;
     }
   }
 </style>
