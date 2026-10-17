@@ -21,8 +21,8 @@ const groups = [
   </div>
 
   <div class="stack-rows">
-    {groups.map((g) => (
-      <div class="stack-row reveal">
+    {groups.map((g, i) => (
+      <div class="stack-row reveal" style={`--reveal-delay: calc(${i} * var(--motion-stagger))`}>
         <span class="s-label">{g.title}</span>
         <div class="s-items">
           {g.items.map((item, idx) => (
@@ -68,6 +68,11 @@ const groups = [
     align-items: baseline;
   }
 
+  /* Resposta tátil: a linha se assenta levemente ao aproximar do cursor */
+  .stack-row:hover {
+    transform: translate3d(0, -2px, 0);
+  }
+
   .s-label {
     font-family: var(--mono);
     font-size: 0.72rem;
@@ -84,7 +89,7 @@ const groups = [
   }
 
   .item {
-    transition: color 0.3s ease;
+    transition: color var(--motion-fast) var(--motion-easing);
     cursor: default;
   }
 
@@ -103,6 +108,12 @@ const groups = [
       grid-template-columns: 1fr;
       gap: 8px;
       padding-block: 20px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stack-row:hover {
+      transform: none;
     }
   }
 </style>

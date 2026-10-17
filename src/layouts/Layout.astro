@@ -14,6 +14,11 @@ const { title, description } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Marca de JS: só sob html.js o conteúdo de revelação começa oculto.
+         Sem JS (ou se este script falhar), o site permanece totalmente visível. -->
+    <script is:inline>
+      document.documentElement.classList.add("js");
+    </script>
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href="https://ranzouu.github.io/" />
@@ -40,36 +45,137 @@ const { title, description } = Astro.props;
     <slot />
 
     <script>
+      const root = document.documentElement;
+      const reduceQuery = matchMedia("(prefers-reduced-motion: reduce)");
+
+      const reveals = () => document.querySelectorAll(".reveal");
+      const revealAll = () => reveals().forEach((el) => el.classList.add("in"));
+
+      let revealObserver;
+      let ensoObserver;
+      let started = false;
+      let paused = false;
+      let ticking = false;
+      const parallaxItems = [];
+
       // Revelações orgânicas: disparam antecipadamente via rootMargin de 250px
-      const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (!reduceMotion) {
-        const observer = new IntersectionObserver(
+      function setupReveal() {
+        revealObserver = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
               if (entry.isIntersecting) {
                 entry.target.classList.add("in");
-                observer.unobserve(entry.target);
+                revealObserver.unobserve(entry.target);
               }
             });
           },
           { rootMargin: "250px 0px", threshold: 0.01 }
         );
-
-        document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
-
-        // Se o usuário clicar em uma âncora (#trabalhos, etc), revela a seção imediatamente
-        window.addEventListener("hashchange", () => {
-          if (location.hash) {
-            const target = document.querySelector(location.hash);
-            if (target) {
-              target.classList.add("in");
-              target.querySelectorAll(".reveal").forEach((el) => el.classList.add("in"));
-            }
-          }
-        });
-      } else {
-        document.querySelectorAll(".reveal").forEach((el) => el.classList.add("in"));
+        reveals().forEach((el) => revealObserver.observe(el));
       }
+
+      // Ensō: o traço se desenha quando a janela entra no viewport
+      function setupEnso() {
+        const enso = document.querySelector(".enso-window");
+        if (!enso) return;
+        ensoObserver = new IntersectionObserver(
+          (entries, obs) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("drawn");
+                obs.unobserve(entry.target);
+              }
+            });
+          },
+          { rootMargin: "120px 0px", threshold: 0.05 }
+        );
+        ensoObserver.observe(enso);
+      }
+
+      function setupParallax() {
+        document.querySelectorAll("[data-parallax]").forEach((el) => {
+          parallaxItems.push({ el, speed: parseFloat(el.dataset.parallax) || 0.06 });
+        });
+      }
+
+      // Paralaxe discreta: deslocamento sutil, composto no compositor via transform
+      function renderParallax() {
+        ticking = false;
+        if (paused) return;
+        const vh = window.innerHeight;
+        for (const { el, speed } of parallaxItems) {
+          const rect = el.getBoundingClientRect();
+          const fromCenter = rect.top + rect.height / 2 - vh / 2;
+          const y = Math.max(-40, Math.min(40, -fromCenter * speed));
+          el.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0)`;
+        }
+      }
+
+      function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(renderParallax);
+      }
+
+      // Âncora clicada (#projetos, etc): revela a seção imediatamente
+      function onHashChange() {
+        if (!location.hash) return;
+        let target = null;
+        try {
+          target = document.querySelector(location.hash);
+        } catch {}
+        if (target) {
+          target.classList.add("in");
+          target.querySelectorAll(".reveal").forEach((el) => el.classList.add("in"));
+        }
+      }
+
+      function startMotion() {
+        if (started) return;
+        started = true;
+        setupReveal();
+        setupEnso();
+        setupParallax();
+        addEventListener("scroll", onScroll, { passive: true });
+        addEventListener("resize", onScroll, { passive: true });
+        addEventListener("hashchange", onHashChange);
+        onScroll();
+      }
+
+      function stopMotion() {
+        started = false;
+        removeEventListener("scroll", onScroll);
+        removeEventListener("resize", onScroll);
+        removeEventListener("hashchange", onHashChange);
+        revealObserver?.disconnect();
+        ensoObserver?.disconnect();
+        parallaxItems.forEach(({ el }) => (el.style.transform = ""));
+        parallaxItems.length = 0;
+      }
+
+      // Sem movimento permitido ou sem IntersectionObserver: nada oculta o conteúdo.
+      if (reduceQuery.matches || !("IntersectionObserver" in window)) {
+        revealAll();
+      } else {
+        startMotion();
+      }
+
+      // Reage a mudanças de preferência em tempo real (CSS já cobre o visual)
+      reduceQuery.addEventListener("change", (e) => {
+        if (e.matches) {
+          revealAll();
+          stopMotion();
+        } else {
+          startMotion();
+        }
+      });
+
+      // Aba oculta: pausa animações e paralisa o rAF
+      document.addEventListener("visibilitychange", () => {
+        paused = document.hidden;
+        root.classList.toggle("is-paused", document.hidden);
+        if (!paused && started) onScroll();
+      });
     </script>
   </body>
 </html>

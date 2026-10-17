@@ -58,7 +58,8 @@ const linkedin = "https://www.linkedin.com/in/rayson-severiano-a4a576140";
   .foot-cta a {
     color: var(--seal);
     border-bottom: 1px solid transparent;
-    transition: border-color 0.4s ease, opacity 0.4s ease;
+    transition: border-color var(--motion-fast) var(--motion-easing),
+                opacity var(--motion-fast) var(--motion-easing);
   }
 
   .foot-cta a:hover {
@@ -72,7 +73,7 @@ const linkedin = "https://www.linkedin.com/in/rayson-severiano-a4a576140";
     opacity: 0.95;
     flex-shrink: 0;
     margin-bottom: 8px;
-    transition: transform 0.4s ease;
+    transition: transform var(--motion-fast) var(--motion-easing-soft);
     cursor: default;
   }
 
@@ -93,7 +94,7 @@ const linkedin = "https://www.linkedin.com/in/rayson-severiano-a4a576140";
   }
 
   .foot-meta a {
-    transition: color 0.3s ease;
+    transition: color var(--motion-fast) var(--motion-easing);
   }
 
   .foot-meta a:hover {
@@ -104,6 +105,12 @@ const linkedin = "https://www.linkedin.com/in/rayson-severiano-a4a576140";
     .foot-main {
       flex-direction: column;
       align-items: flex-start;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hanko-foot:hover {
+      transform: none;
     }
   }
 </style>

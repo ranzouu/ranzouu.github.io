@@ -10,7 +10,7 @@ const fmtDate = (iso: string) =>
 
 <section class="commits glass-block reveal" id="commits">
   <div class="head">
-    <span class="kanji" aria-hidden="true">近</span>
+    <span class="kanji" aria-hidden="true" data-parallax="0.05">近</span>
     <div>
       <h2 class="title">últimos commits</h2>
       <p class="sub">o que as mãos fizeram recentemente, direto do GitHub</p>
@@ -86,6 +86,11 @@ const fmtDate = (iso: string) =>
     align-items: baseline;
     padding-block: 1rem;
     border-bottom: 1px solid var(--hairline);
+    transition: transform var(--motion-duration) var(--motion-easing-soft);
+  }
+
+  .row:hover {
+    transform: translate3d(2px, 0, 0);
   }
 
   .date {
@@ -109,7 +114,7 @@ const fmtDate = (iso: string) =>
     color: var(--ink-3);
     text-decoration: none;
     white-space: nowrap;
-    transition: color 0.3s ease;
+    transition: color var(--motion-fast) var(--motion-easing);
   }
 
   .repo:hover {
@@ -129,7 +134,8 @@ const fmtDate = (iso: string) =>
     text-decoration: none;
     border-bottom: 1px solid var(--hairline);
     padding-bottom: 3px;
-    transition: color 0.3s, border-color 0.3s;
+    transition: color var(--motion-fast) var(--motion-easing),
+                border-color var(--motion-fast) var(--motion-easing);
   }
 
   .all:hover {
@@ -144,6 +150,12 @@ const fmtDate = (iso: string) =>
     }
     .date {
       order: 2;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .row:hover {
+      transform: none;
     }
   }
 </style>

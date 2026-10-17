@@ -6,7 +6,7 @@ const kanjiNumbers = ["一", "二", "三"];
 
 <section class="projects glass-block reveal" id="projetos">
   <div class="head">
-    <span class="kanji" aria-hidden="true">終</span>
+    <span class="kanji" aria-hidden="true" data-parallax="0.05">終</span>
     <div>
       <h2 class="title">projetos finalizados</h2>
       <p class="sub">concluídos, entregues e públicos</p>
@@ -16,7 +16,7 @@ const kanjiNumbers = ["一", "二", "三"];
   <div class="list">
     {projects.map((p, i) => (
       <article class="panel">
-        <span class="index-kanji" aria-hidden="true">{kanjiNumbers[i]}</span>
+        <span class="index-kanji" aria-hidden="true" data-parallax="0.06">{kanjiNumbers[i]}</span>
         <div class="content">
           <a href={p.href} target="_blank" rel="noopener noreferrer" class="link">
             <h3 class="name">{p.name} <span class="arrow">↗</span></h3>
@@ -69,17 +69,43 @@ const kanjiNumbers = ["一", "二", "三"];
   }
 
   .panel {
+    position: relative;
+    z-index: 0;
     padding-block: clamp(2.2rem, 5vh, 3.5rem);
     border-bottom: 1px solid var(--hairline);
     display: grid;
     grid-template-columns: clamp(48px, 7vw, 72px) 1fr;
     gap: clamp(1.4rem, 3vw, 2.5rem);
     align-items: baseline;
-    transition: background-color 0.4s ease;
+    transition: transform var(--motion-duration) var(--motion-easing-soft);
   }
 
   .panel:last-child {
     border-bottom: 0;
+  }
+
+  /* Elevação tátil: véu de papel que se ergue + sombra de tinta (sem glow) */
+  .panel::after {
+    content: "";
+    position: absolute;
+    inset: 4px -8px;
+    z-index: -1;
+    border-radius: 4px;
+    background: rgba(243, 239, 230, 0.62);
+    box-shadow: 0 20px 44px -28px rgba(28, 25, 19, 0.55);
+    opacity: 0;
+    transition: opacity var(--motion-duration) var(--motion-easing);
+    pointer-events: none;
+  }
+
+  .panel:hover,
+  .panel:focus-within {
+    transform: translate3d(0, -3px, 0);
+  }
+
+  .panel:hover::after,
+  .panel:focus-within::after {
+    opacity: 1;
   }
 
   .index-kanji {
@@ -88,7 +114,7 @@ const kanjiNumbers = ["一", "二", "三"];
     color: var(--ink-3);
     line-height: 1;
     user-select: none;
-    transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: color var(--motion-duration) var(--motion-easing-soft);
   }
 
   .panel:hover .index-kanji {
@@ -106,7 +132,7 @@ const kanjiNumbers = ["一", "二", "三"];
     font-weight: 500;
     line-height: 1.25;
     color: var(--ink);
-    transition: color 0.4s ease;
+    transition: color var(--motion-fast) var(--motion-easing);
   }
 
   .name .arrow {
@@ -115,7 +141,8 @@ const kanjiNumbers = ["一", "二", "三"];
     opacity: 0;
     display: inline-block;
     translate: -6px 3px;
-    transition: opacity 0.4s ease, translate 0.4s ease;
+    transition: opacity var(--motion-fast) var(--motion-easing),
+                translate var(--motion-fast) var(--motion-easing);
   }
 
   .panel:hover .name {
@@ -149,6 +176,22 @@ const kanjiNumbers = ["一", "二", "三"];
       grid-template-columns: 40px 1fr;
       gap: 1.1rem;
       padding-block: 1.8rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel:hover,
+    .panel:focus-within {
+      transform: none;
+    }
+
+    .panel:hover::after,
+    .panel:focus-within::after {
+      opacity: 1;
+    }
+
+    .name .arrow {
+      translate: none;
     }
   }
 </style>
