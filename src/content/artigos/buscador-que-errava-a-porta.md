@@ -1,11 +1,11 @@
 ---
 title: "O buscador que errava a porta: como medi um retrieval de verdade"
 description: "O buscador de políticas acertava 21 de 25 perguntas — e as 4 que erravam contam a história mais útil. O que um índice de palavras-que-se-repetem enxerga, o que ele não enxerga, e por que medir só os acertos é enganar a si mesmo."
-pubDate: 2026-11-14
+pubDate: 2026-11-10
 tags: ["rag", "busca", "avaliação", "métricas"]
 ---
 
-Artigo técnico · 14 de novembro de 2026 · 10 min de leitura
+Artigo técnico · 10 de novembro de 2026 · 10 min de leitura
 
 Imagine o atendente de um salão de beleza. Você pede "quero cortar o cabelo" e ele te
 entrega — o folder da academia da esquina. Acertou o bairro, errou a porta. Se você

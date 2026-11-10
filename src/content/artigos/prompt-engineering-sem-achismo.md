@@ -1,11 +1,11 @@
 ---
 title: "Prompt engineering sem achismo: 36 chamadas, 3 variantes e zero dados de demo"
 description: "O que acontece quando você para de testar prompt com resposta de mentirinha: 8 de 12 respostas sendo recusa, a ficha explícita vencendo de 12 a 0, e três problemas de integração que só aparecem na rodada real."
-pubDate: 2026-11-12
+pubDate: 2026-11-10
 tags: ["llm", "prompt engineering", "avaliação", "groq"]
 ---
 
-Artigo técnico · 12 de novembro de 2026 · 10 min de leitura
+Artigo técnico · 10 de novembro de 2026 · 10 min de leitura
 
 Pense num vendedor que ensaia o discurso no espelho todo dia e nunca entra numa loja.
 No espelho ele é impecável. Foi assim que eu testei prompts por uma semana — até apontar
