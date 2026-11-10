@@ -1,0 +1,208 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const artigos = (await getCollection("artigos")).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+function fmt(date: Date) {
+  return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+}
+---
+
+<Layout
+  title="Artigos — Rayson Rodrigues"
+  description="Artigos técnicos sobre métricas honestas, benchmarks e engenharia de IA — escritos a partir de projetos reais."
+>
+  <main class="wrap">
+    <section class="artigos glass-block" id="artigos">
+      <div class="head">
+        <span class="kanji" aria-hidden="true">文</span>
+        <div>
+          <h2 class="title">artigos</h2>
+          <p class="sub">textos técnicos escritos a partir de projetos reais</p>
+        </div>
+      </div>
+
+      <div class="list">
+        {
+          artigos.map((artigo, i) => (
+            <article class="panel reveal" style={`--reveal-delay: calc(${i} * var(--motion-stagger))`}>
+              <span class="index-kanji" aria-hidden="true">
+                {["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"][i] ?? "·"}
+              </span>
+              <div class="content">
+                <a href={`/artigos/${artigo.id}/`} class="link">
+                  <h3 class="name">
+                    {artigo.data.title} <span class="arrow">↗</span>
+                  </h3>
+                </a>
+                <p class="tech">
+                  {fmt(artigo.data.pubDate)} · {artigo.data.tags.join(" · ")}
+                </p>
+                <p class="desc">{artigo.data.description}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+
+      <a class="all" href="/">&larr; voltar ao portfólio</a>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .artigos {
+    margin-block: var(--space-l);
+    padding: clamp(1.8rem, 4vw, 3rem);
+  }
+
+  .head {
+    display: flex;
+    gap: 1.2rem;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .kanji {
+    font-size: 2.2rem;
+    color: var(--seal);
+    opacity: 0.8;
+    line-height: 1;
+  }
+
+  .title {
+    font-family: var(--mincho);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .sub {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-3);
+    margin-top: 0.3rem;
+  }
+
+  .list {
+    border-top: 1px solid var(--hairline);
+  }
+
+  .panel {
+    position: relative;
+    z-index: 0;
+    padding-block: clamp(2.2rem, 5vh, 3.5rem);
+    border-bottom: 1px solid var(--hairline);
+    display: grid;
+    grid-template-columns: clamp(40px, 6vw, 64px) 1fr;
+    gap: clamp(1.4rem, 3vw, 2.5rem);
+    align-items: baseline;
+    transition: transform var(--motion-duration) var(--motion-easing-soft);
+  }
+
+  .panel:last-child {
+    border-bottom: 0;
+  }
+
+  .panel:hover {
+    transform: translate3d(0, -3px, 0);
+  }
+
+  .index-kanji {
+    font-family: var(--mincho);
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    color: var(--ink-3);
+    line-height: 1;
+    user-select: none;
+    transition: color var(--motion-duration) var(--motion-easing-soft);
+  }
+
+  .panel:hover .index-kanji {
+    color: var(--seal);
+  }
+
+  .link {
+    display: inline-block;
+    text-decoration: none;
+  }
+
+  .name {
+    font-family: var(--mincho);
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--ink);
+    transition: color var(--motion-fast) var(--motion-easing);
+  }
+
+  .name .arrow {
+    font-family: var(--mono);
+    font-size: 0.85em;
+    opacity: 0;
+    display: inline-block;
+    translate: -6px 3px;
+    transition: opacity var(--motion-fast) var(--motion-easing), translate var(--motion-fast) var(--motion-easing);
+  }
+
+  .panel:hover .name {
+    color: var(--seal);
+  }
+
+  .panel:hover .name .arrow {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  .tech {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    color: var(--ink-3);
+    margin-top: 0.8rem;
+    text-transform: lowercase;
+  }
+
+  .desc {
+    margin-top: 1.1rem;
+    max-width: 62ch;
+    color: var(--ink-2);
+    line-height: 1.9;
+    font-size: 0.98rem;
+  }
+
+  .all {
+    display: inline-block;
+    margin-top: 1.6rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 3px;
+    transition: color var(--motion-fast) var(--motion-easing), border-color var(--motion-fast) var(--motion-easing);
+  }
+
+  .all:hover {
+    color: var(--seal);
+    border-color: var(--seal);
+  }
+
+  @media (max-width: 640px) {
+    .panel {
+      grid-template-columns: 32px 1fr;
+      gap: 1.1rem;
+      padding-block: 1.8rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel:hover,
+    .panel:hover .index-kanji {
+      transform: none;
+    }
+  }
+</style>
