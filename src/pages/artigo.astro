@@ -1,0 +1,323 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const cvCode = `from sklearn.model_selection import StratifiedKFold, GridSearchCV
+
+inner = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+outer = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+for train_idx, test_idx in outer.split(X, y):
+    # o tuning NUNCA ve o fold de teste — só o treino interno
+    grid = GridSearchCV(pipeline, param_grid={"C": [0.25, 0.5, 1.0, 2.0, 4.0]},
+                        cv=inner, scoring="f1_macro")
+    grid.fit(X[train_idx], y[train_idx])
+    # avalia no fold externo com o melhor C daquele fold
+    fold_score = grid.score(X[test_idx], y[test_idx])`;
+
+const injectionCode = `SEED = 20260101      # série reproduzível, byte a byte
+N_DAYS = 180         # receita diária: tendência + sazonalidade + ruído
+
+# 12 injeções em datas conhecidas: 6 spikes, 6 quedas
+INJECTIONS = [
+    (30, "spike", 2.6), (52, "spike", 2.3), (88, "spike", 3.2),
+    (120, "spike", 2.4), (150, "spike", 2.8), (168, "spike", 2.5),
+    (41, "drop", 0.70), (66, "drop", 0.62), (100, "drop", 0.72),
+    (135, "drop", 0.58), (158, "drop", 0.68), (175, "drop", 0.75),
+]`;
+
+---
+
+<Layout
+  title="Métricas que eu posso defender — Rayson Rodrigues"
+  description="O protocolo por trás dos benchmarks do meu portfólio: validação cruzada honesta, ground truth por construção e uma rodada real de 36 chamadas contra um modelo de raciocínio."
+>
+  <main class="article">
+    <p class="kicker">artigo técnico &middot; 10 de novembro de 2026 &middot; 12 min de leitura</p>
+
+    <h1>Métricas que eu posso defender</h1>
+
+    <p class="lede">
+      Como um número de <code>1.0</code> de accuracy no meu próprio repositório virou
+      <code>0.633 &plusmn; 0.192</code> — e por que o segundo número é o mais valioso do meu
+      portfólio. Três protocolos que eu aplico antes de publicar qualquer métrica, e o que
+      aconteceu quando um benchmark encontrou a realidade.
+    </p>
+
+    <h2>1. O número que me envergonhou</h2>
+
+    <p>
+      Meu primeiro classificador de intenção de leads media <strong>1.0 de precision,
+      1.0 de recall, 1.0 de F1</strong>. Número perfeito em três frentes. O README estava
+      escrito, o pacote pronto para publicar. Só tinha um problema: o número era falso.
+    </p>
+
+    <p>
+      Eu tinha importado <code>train_test_split</code> no topo do arquivo — e nunca usado.
+      O modelo era treinado e avaliado nas <em>mesmas 15 amostras</em>. Um classificador
+      decorou a lista e provou que decorou. Qualquer recrutador técnico que abrisse o
+      código veria em dez segundos, e a credibilidade de todo o portfólio ia junto.
+    </p>
+
+    <p>
+      A correção produziu o oposto do marketing: expandi o dataset de 15 para 60 amostras,
+      reescrevi a avaliação e o número caiu para <strong>0.633 &plusmn; 0.192</strong> em
+      validação cruzada de 5 folds. Mais baixo, mais feio — e defensável em qualquer
+      entrevista. Esse é o primeiro princípio: <strong>uma métrica que eu não consigo
+      explicar de memória, com o protocolo na mão, não é métrica — é decoração.</strong>
+    </p>
+
+    <h2>2. Protocolo 1: validação cruzada com tuning aninhado</h2>
+
+    <p>
+      O erro clássico depois do in-sample é o vazamento por tuning: se você escolhe o
+      hiperparâmetro olhando o resultado de todos os folds, o fold de teste participou da
+      decisão. A correção é tunar <em>dentro</em> de cada fold, como se o fold de teste
+      não existisse:
+    </p>
+
+    <pre><code>{cvCode}</code></pre>
+
+    <p>
+      O resultado publicado: <strong>accuracy 0.633 &plusmn; 0.192</strong>, macro-F1 0.633,
+      com <code>C</code> variando por fold (2.0, 0.5, 0.5, 2.0, 0.5). O desvio padrão alto
+      (&plusmn;0.192) não é defeito de fabricação — com 60 amostras e 12 por fold, é a
+      verdade estatística do tamanho da amostra, e o card do modelo diz isso em voz alta.
+      Por classe: <code>cold</code> 0.70, <code>hot</code> 0.75, <code>warm</code> 0.45 — a
+      classe média é a difícil, o que faz sentido de negócio e eu não teria descoberto sem
+      o relatório por classe.
+    </p>
+
+    <h2>3. Protocolo 2: ground truth por construção</h2>
+
+    <p>
+      Detecção de anomalias tem um problema de avaliação: em dados reais, ninguém sabe com
+      certeza quais pontos são anomalias. Meu benchmark resolve isso por construção —
+      sintetizo uma série determinística e injeto as anomalias eu mesmo, em datas que eu
+      escolhi:
+    </p>
+
+    <pre><code>{injectionCode}</code></pre>
+
+    <p>
+      Com ground truth exato, a comparação dos métodos virou ciência medida em vez de
+      opinião. O resultado que eu não esperava: <strong>o z-score detecta 6 de 6 spikes e
+      0 de 6 quedas.</strong> A explicação é estatística pura — uma queda comprime a média
+      e o desvio da janela, então o próprio desvio anômalo entra no denominador e o evento
+      desaparece. O IQR ficou com o melhor F1 (0.86, zero falso positivo); o STL encontrou
+      as 12, ao custo de 10 falsos positivos.
+    </p>
+
+    <p>
+      Duas aulas de disciplina entraram nesse benchmark. A primeira: os baldes de magnitude
+      são definidos <em>por tipo</em> — um spike de 2.3&times; e uma queda de 0.70&times;
+      não vivem na mesma escala, e misturá-los no mesmo balde teria produzido uma tabela
+      mentirosa que eu mesmo quase publiquei. A segunda: o método mais popular
+      (<em>z-score</em>, o que todo mundo cita) é cego exatamente para o evento que importa
+      em receita — a queda.
+    </p>
+
+    <h2>4. Protocolo 3: queries que devem falhar</h2>
+
+    <p>
+      No benchmark de retrieval eu cometi um cuidado que a maioria dos tutoriais não tem:
+      incluí 5 queries <strong>fora do cardápio do corpus</strong> — crossfit, food truck,
+      dentista, ateliê, autoescola — para as quais nenhuma política existe. Elas
+      <em>devem</em> falhar. O resultado foi hit@3 21/25 (0.84) e MRR@3 0.793 sobre todas
+      as queries, com 20/20 dentro do corpus e 1/5 fora (o crossfit acertou a academia por
+      sobreposição lexical de vocabulário — acidente, não acerto).
+    </p>
+
+    <p>
+      Esse tipo de dado é o oposto do que o mercado publica: sistemas de retrieval
+      geralmente são avaliados só em queries que têm resposta. Um benchmark sem casos
+      negativos não mede recall — mede otimismo. E o MRR condicional (0.944, só sobre os
+      acertos) existe no card apenas como comparativo; a métrica principal é a honesta,
+      sobre todas.
+    </p>
+
+    <h2>5. Quando o benchmark encontra a realidade</h2>
+
+    <p>
+      A lição mais cara veio de uma rodada real de LLM. Eu tinha um avaliador de prompts
+      que rodava em modo demo — respostas fixas no código, latência de mentirinha. Na
+      primeira rodada real, contra o <code>openai/gpt-oss-20b</code> via Groq, três coisas
+      quebraram ao mesmo tempo:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Respostas vazias silenciosas.</strong> Com <code>max_tokens=200</code>, o
+        canal de pensamento do modelo de raciocínio comia o budget inteiro: HTTP 200,
+        <code>content</code> vazio, zero erro. A amostra desaparecia sem deixar rastro.
+      </li>
+      <li>
+        <strong>429 sem retry.</strong> O free tier tem limite de 30 requisições por
+        minuto; 5 das 36 chamadas morreram sem backoff.
+      </li>
+      <li>
+        <strong>Modelo aposentado.</strong> O <code>llama-3.1-8b-instant</code> que eu
+        tinha fixado saiu do free tier em agosto de 2026 — 404 na cara.
+      </li>
+    </ul>
+
+    <p>
+      Depois de corrigir (budget de 1000 tokens, retry com backoff, pacing de 2s), a
+      rodada limpa produziria o achado mais interessante de todos: o prompt de palavra
+      seca extraiu rótulo em apenas 4 de 12 casos — nas outras 8, o modelo
+      <em>recusava</em> classificar ("preciso de mais informações"). O prompt com schema
+      JSON explícito extraiu 12/12, com as três classes aparecendo. Nenhum desses achados
+      existia no modo demo, e nenhum existiria se eu tivesse publicado o benchmark só no
+      papel.
+    </p>
+
+    <p>
+      A generalização: <strong>benchmark mede o pipeline, não só o modelo.</strong> A
+      integração — budget de tokens, rate limit, ciclo de vida dos modelos — faz parte da
+      métrica. E o dado sintético só vale como protocolo quando a rodada real confirma o
+      protocolo.
+    </p>
+
+    <h2>6. O checklist do que eu publico</h2>
+
+    <ul>
+      <li>Nunca métrica in-sample. Se treinei e avaliei nos mesmos dados, o número é 1.0 e não vale nada.</li>
+      <li>O protocolo viaja junto com o número — seed, splits, o que foi tunado e onde.</li>
+      <li>Desvio padrão e tamanho de amostra fazem parte da métrica, não são nota de rodapé.</li>
+      <li>Casos que devem falhar existem no benchmark, e a falha é publicada.</li>
+      <li>Modo demo é rotulado como demo. Latência de 120&nbsp;ms constante é assinatura de dado falso.</li>
+      <li>Erros ficam no repositório: <code>benchmark_errors.csv</code> existe pra ser lido.</li>
+      <li>Limitações no card, escritas antes de alguém perguntar.</li>
+    </ul>
+
+    <h2>Fechamento</h2>
+
+    <p>
+      Um portfólio com 0.633 honestos diz ao recrutador duas coisas que um 1.0 nunca diz:
+      que eu sei medir, e que eu não tenho medo do número real. A segunda importa mais.
+      Todos os protocolos, dados e código deste artigo estão públicos — os benchmarks no
+      [Hugging Face](https://huggingface.co/ranzouu), o código no
+      [GitHub](https://github.com/ranzouu), e a comparação de prompts rodando ao vivo no
+      Space do prompt-evaluator.
+    </p>
+
+    <p class="signature">
+      — Rayson Severiano Rodrigues, Fortaleza/CE, novembro de 2026.
+    </p>
+
+    <p class="back"><a href="/">&larr; voltar ao portfólio</a></p>
+  </main>
+</Layout>
+
+<style>
+  .article {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: clamp(48px, 8vh, 96px) 24px 96px;
+    color: var(--ink-2);
+    font-size: 1.02rem;
+    line-height: 1.75;
+  }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: var(--mincho);
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--ink);
+    margin: 0 0 20px;
+    letter-spacing: -0.01em;
+  }
+
+  .lede {
+    font-size: 1.14rem;
+    line-height: 1.7;
+    color: var(--ink);
+    border-left: 3px solid var(--seal);
+    padding-left: 18px;
+    margin-bottom: 44px;
+  }
+
+  h2 {
+    font-family: var(--mincho);
+    font-size: 1.32rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 52px 0 14px;
+    padding-top: 18px;
+    border-top: 1px solid var(--hairline);
+  }
+
+  p { margin: 0 0 18px; }
+
+  strong { color: var(--ink); font-weight: 600; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--paper-tint);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--ink);
+  }
+
+  pre {
+    background: var(--paper-tint);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 22px 0 26px;
+    line-height: 1.55;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    font-size: 0.82rem;
+    color: var(--ink-2);
+  }
+
+  ul {
+    margin: 0 0 20px;
+    padding-left: 22px;
+  }
+
+  li { margin-bottom: 10px; }
+
+  li::marker { color: var(--seal); }
+
+  a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--seal);
+    transition: color 0.2s ease;
+  }
+
+  a:hover { color: var(--seal); }
+
+  .signature {
+    font-family: var(--mincho);
+    color: var(--ink-3);
+    margin-top: 44px;
+  }
+
+  .back {
+    margin-top: 28px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+  }
+
+  @media (max-width: 640px) {
+    .article { padding-top: 40px; }
+    .lede { font-size: 1.05rem; }
+  }
+</style>
