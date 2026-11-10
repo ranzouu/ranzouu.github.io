@@ -21,29 +21,36 @@ function fmt(date: Date) {
 ---
 
 <Layout title={`${title} — Rayson Rodrigues`} description={description}>
-  <main class="article">
-    <p class="kicker">
-      artigo técnico &middot; {fmt(pubDate)} &middot; {tags.join(" · ")}
-    </p>
+  <main class="wrap">
+    <article class="artigo glass-block">
+      <p class="kicker">
+        artigo técnico &middot; {fmt(pubDate)} &middot; {tags.join(" · ")}
+      </p>
 
-    <h1>{title}</h1>
+      <h1>{title}</h1>
 
-    <div class="prose">
-      <Content />
-    </div>
+      <div class="prose">
+        <Content />
+      </div>
 
-    <p class="back"><a href="/artigos/">&larr; todos os artigos</a></p>
+      <p class="back"><a href="/artigos/">&larr; todos os artigos</a></p>
+    </article>
   </main>
 </Layout>
 
 <style>
-  .article {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: clamp(48px, 8vh, 96px) 24px 96px;
+  /* .wrap (position:relative; z-index:1) tira o texto de baixo das camadas
+     fixas de fundo (ruído + ukiyo-e); .glass-block dá o papel washi da casa */
+  .artigo {
+    position: relative;
+    z-index: 1;
+    margin-block: var(--space-l);
+    padding: clamp(2rem, 5vw, 3.5rem);
   }
 
   .kicker {
+    position: relative;
+    z-index: 1;
     font-family: var(--mono);
     font-size: 0.72rem;
     letter-spacing: 0.14em;
@@ -53,16 +60,22 @@ function fmt(date: Date) {
   }
 
   h1 {
+    position: relative;
+    z-index: 1;
     font-family: var(--mincho);
     font-size: clamp(2rem, 5vw, 2.9rem);
     font-weight: 600;
     line-height: 1.15;
     color: var(--ink);
-    margin: 0 0 36px;
+    margin: 0 0 40px;
     letter-spacing: -0.01em;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--hairline);
   }
 
   .prose {
+    position: relative;
+    z-index: 1;
     color: var(--ink-2);
     font-size: 1.02rem;
     line-height: 1.8;
@@ -70,10 +83,11 @@ function fmt(date: Date) {
 
   .prose :global(p) {
     margin: 0 0 20px;
+    color: var(--ink-2);
   }
 
   .prose :global(p:first-child) {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--ink-3);
     font-family: var(--mono);
     line-height: 1.7;
@@ -131,6 +145,7 @@ function fmt(date: Date) {
 
   .prose :global(li) {
     margin-bottom: 10px;
+    color: var(--ink-2);
   }
 
   .prose :global(li::marker) {
@@ -149,8 +164,19 @@ function fmt(date: Date) {
   }
 
   .back {
-    margin-top: 40px;
+    position: relative;
+    z-index: 1;
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--hairline);
     font-family: var(--mono);
     font-size: 0.82rem;
+  }
+
+  @media (max-width: 640px) {
+    .artigo {
+      padding: 1.6rem;
+      margin-block: var(--space-m);
+    }
   }
 </style>
