@@ -1,6 +1,6 @@
 ---
 title: "O app que estava pronto e tinha seis bugs: a revisão do LeitorWatch tela por tela"
-description: "Um leitor para Apple Watch que compilava e rodava no simulador — com botões invisíveis, uma coroa que mudava o número mas não a velocidade, e um bug que apagava a biblioteca do usuário. Seis achados, o mecanismo de cada um e o que a revisão tela por tela pegou que o build não pega."
+description: "Um leitor para Apple Watch que compilava e rodava no simulador, com botões invisíveis, uma coroa que mudava o número mas não a velocidade, e um bug que apagava a biblioteca do usuário. Seis achados, o mecanismo de cada um e o que a revisão tela por tela pega que o build não pega."
 pubDate: 2026-11-11
 tags: ["swift", "watchos", "revisão", "bugs", "produto"]
 ---
@@ -9,31 +9,31 @@ Artigo técnico · 11 de novembro de 2026 · 11 min de leitura
 
 Um app que compila, roda e passa nos testes ainda pode estar inutilizável. O
 
-[LeitorWatch](https://github.com/ranzouu/leitorwatch) — leitor de livros para Apple
+[LeitorWatch](https://github.com/ranzouu/leitorwatch) é um leitor de livros para Apple
 
-Watch que importa arquivos do iCloud e lê em dois modos: **RSVP** (uma palavra por
+Watch que importa arquivos do iCloud e lê em dois modos: **RSVP** (uma palavra por vez
 
-vez no centro da tela, como um letreiro) e **TTS** (o relógio lendo em voz alta) —
+no centro da tela, como um letreiro) e **TTS** (o relógio lendo em voz alta). Ele
 
 passava nesses três critérios antes de uma revisão tela por tela. A revisão encontrou
 
-seis problemas, três deles invisíveis a olho nu. Este artigo percorre cada achado no
+seis problemas, três deles invisíveis a olho nu. Cada achado vem na forma de sintoma,
 
-formato sintoma → mecanismo → correção.
+mecanismo e correção.
 
 ## A coroa que mudava o número, não a velocidade
 
-**Sintoma:** girar a coroa digital trocava o ritmo na etiqueta — 300, 325, 350 — e a
+Girar a coroa digital trocava o ritmo na etiqueta (300, 325, 350) e a leitura
 
-leitura continuava na mesma velocidade.
+continuava na mesma velocidade.
 
-**Mecanismo:** a variável exibida na tela e o timer que move as palavras eram estados
+A variável exibida na tela e o timer que move as palavras eram estados separados. O
 
-separados. O timer nascia com um intervalo calculado a partir do valor da coroa e não
+timer nascia com um intervalo calculado a partir do valor da coroa e não era informado
 
-era informado das mudanças seguintes.
+das mudanças seguintes.
 
-**Correção:** uma observação da variável, que recria o timer com o novo intervalo:
+A correção é uma observação da variável, que recria o timer com o novo intervalo:
 
 ```swift
 .onChange(of: wpm) { _, _ in
@@ -43,19 +43,19 @@ era informado das mudanças seguintes.
 
 ## Botões invisíveis (dois achados, mesma raiz)
 
-**Sintoma:** os botões de voltar e avançar no leitor, e os A-/A+ de tamanho de fonte,
+Os botões de voltar e avançar no leitor, e os A-/A+ de tamanho de fonte, apareciam
 
-apareciam como manchas escuras sobre o fundo preto. Existiam, respondiam ao toque —
+como manchas escuras sobre o fundo preto. Existiam, respondiam ao toque, e não eram
 
-e não eram vistos.
+vistos.
 
-**Mecanismo:** os dois casos usavam tinta translúcida: laranja a 15% de opacidade
+Os dois casos usavam tinta translúcida: laranja a 15% de opacidade sobre preto vira
 
-sobre preto vira preto; azul a 15% de opacidade sobre preto vira preto. A borda
+preto; azul a 15% de opacidade sobre preto vira preto. A borda continuava lá, só não
 
-continuava lá, só não havia pixels suficientes para enxergá-la.
+havia pixels suficientes para enxergá-la.
 
-**Correção:** ícone com cor sólida e controle explícito de contraste, mantendo a área
+A correção é ícone com cor sólida e controle explícito de contraste, mantendo a área
 
 de toque grande o bastante para o pulso:
 
@@ -71,17 +71,15 @@ Button(action: { goForwardWords(5) }) {
 
 ## Avançar com o áudio pausado começava a falar
 
-**Sintoma:** no modo de leitura por voz, pular uma frase com a fala pausada iniciava
+No modo de leitura por voz, pular uma frase com a fala pausada iniciava a leitura.
 
-a leitura.
+Os dois botões de navegação chamavam a mesma rotina que reinicia a fala, escrita para
 
-**Mecanismo:** os dois botões de navegação chamavam a mesma rotina que reinicia a
+o caso comum (áudio tocando) e sem tratamento do estado pausado.
 
-fala — escrita para o caso comum (áudio tocando) e sem tratamento do estado pausado.
+A correção separa as responsabilidades: navegar é sempre permitido, e tocar áudio só
 
-**Correção:** separar as responsabilidades. Navegar é sempre permitido; tocar áudio
-
-só quando o usuário pediu para tocar:
+quando o usuário pediu para tocar.
 
 ```swift
 guard currentSentenceIndex < sentenceInfos.count - 1 else { return }
@@ -91,21 +89,21 @@ if isPlaying { restartSpeech() } else { updateProgress() }
 
 ## A biblioteca substituída pelos livros de exemplo
 
-**Sintoma:** em falhas de leitura do arquivo de dados, o app voltava a exibir três
+Em falhas de leitura do arquivo de dados, o app voltava a exibir três livros de
 
-livros de demonstração no lugar da biblioteca do usuário.
+demonstração no lugar da biblioteca do usuário.
 
-**Mecanismo:** a abertura do arquivo usava um bloco `try/catch` único. Qualquer erro
+A abertura do arquivo usava um bloco `try/catch` único. Qualquer erro, fosse proteção
 
-— proteção de arquivo com o relógio bloqueado, arquivo momentaneamente indisponível
+de arquivo com o relógio bloqueado ou arquivo momentaneamente indisponível, caía no
 
-— caía no mesmo caminho do "primeiro uso", que semeia os exemplos **e regrava o
+mesmo caminho do "primeiro uso", que semeia os exemplos e regrava o arquivo. Falhar era
 
-arquivo**. Falhar era tolerável; sobrescrever os dados do usuário, não.
+tolerável; sobrescrever os dados do usuário, não.
 
-**Correção:** separar os dois cenários no carregamento, e ajustar a proteção do
+A correção separa os dois cenários no carregamento, e ajusta a proteção do arquivo para
 
-arquivo para `completeFileProtectionUntilFirstUserAuthentication` — um leitor precisa
+`completeFileProtectionUntilFirstUserAuthentication`, porque um leitor precisa
 
 funcionar assim que o pulso é levantado, não só após o primeiro desbloqueio do dia:
 
@@ -121,48 +119,49 @@ catch { print("biblioteca preservada: \(error)"); return [] }
 
 ## Identificador confundido com rótulo, e a barra que dominava a tela
 
-**Sintoma:** em livros com dois capítulos de mesmo título, a lista de capítulos
+Em livros com dois capítulos de mesmo título, a lista de capítulos misturava as
 
-misturava as linhas.
+linhas. O `id` do capítulo era o próprio título, e identificador repetido quebra a
 
-**Mecanismo:** o `id` do capítulo era o próprio título. Identificador repetido quebra
+correspondência entre dados e linhas na tela. A correção passou a usar título somado à
 
-a correspondeência entre dados e linhas na tela — a correção passou a usar título
+posição no texto.
 
-somado à posição no texto.
+A barra de progresso ocupava altura equivalente a um botão nas três telas que a
 
-**Sintoma:** a barra de progresso ocupava altura equivalente a um botão nas três
+usavam. O `ProgressView` padrão do watchOS desenha uma barra alta, pensada para telas
 
-telas que a usavam.
-
-**Mecanismo:** o `ProgressView` padrão do watchOS desenha uma barra alta, pensada
-
-para telas maiores. **Correção:** barra fina de 4 pontos desenhada à mão, com fundo
+maiores, então a correção é uma barra fina de 4 pontos desenhada à mão, com fundo
 
 translúcido e preenchimento proporcional.
 
 ## Como a revisão foi feita
 
-Sem testes automatizados de interface: o app foi executado no simulador do watchOS
+Sem testes automatizados de interface, o app foi executado no simulador do watchOS 26.5
 
-26.5 e cada tela inspecionada por captura de tela. Para chegar a telas de profundidade
+e cada tela inspecionada por captura de tela. Para chegar a telas de profundidade sem
 
-sem depender de cliques imprecisos no simulador de relógio, um seletor de tela por
+depender de cliques imprecisos no simulador de relógio, um seletor de tela por variável
 
-variável de ambiente foi incluído temporariamente, corrigido o que era preciso, e as
+de ambiente foi incluído temporariamente, corrigido o que era preciso, e as capturas
 
-capturas repetidas comparando o obtido com o esperado. O seletor saiu do código antes
+repetidas comparando o obtido com o esperado. O seletor saiu do código antes da
 
-da publicação.
+publicação.
 
 ## O que ficou, verificável
 
 - build ok no watchOS 26.5, executado no simulador;
-- botões laterais e A-/A+ visíveis — antes: tinta invisível;
+
+- botões laterais e A-/A+ visíveis (antes: tinta invisível);
+
 - velocidade da coroa aplicada no momento da mudança;
+
 - navegação com áudio pausado não dispara a fala;
+
 - falha de leitura preserva a biblioteca do usuário;
-- quatro das cinco ações do livro visíveis de uma vez na tela de opções — antes: duas.
+
+- quatro das cinco ações do livro visíveis de uma vez na tela de opções (antes: duas).
 
 O código e o histórico das correções estão em
 
@@ -170,8 +169,10 @@ O código e o histórico das correções estão em
 
 O que esse exercício muda na prática: uma revisão que se limita a rodar o build valida
 
-o caminho fácil. Os defeitos que impedem o uso — contraste, velocidade que não
+o caminho fácil. Os defeitos que impedem o uso (contraste, velocidade que não responde,
 
-responde, dados que somem — surgem quando alguém percorre as telas e compara o que
+dados que somem) aparecem quando alguém percorre as telas e compara o que está escrito
 
-está escrito com o que acontece. Compilar é o começo da revisão, não o fim.
+com o que acontece. Compilar é o começo da revisão, não o fim.
+
+por Rayson Severiano Rodrigues, Fortaleza/CE, novembro de 2026.
