@@ -1,55 +1,39 @@
 ---
-title: "Abri meu próprio app pra revisar e achei seis bugs — três deles de invisibilidade"
-description: "O LeitorWatch rodava bonito no simulador até eu olhar tela por tela: botões pintados com tinta invisível, uma coroa que mudava o número mas não a velocidade, e um bug que apagava a biblioteca do usuário. O que seis bugs ensinam sobre revisar o próprio trabalho."
+title: "O app que estava pronto e tinha seis bugs: a revisão do LeitorWatch tela por tela"
+description: "Um leitor para Apple Watch que compilava e rodava no simulador — com botões invisíveis, uma coroa que mudava o número mas não a velocidade, e um bug que apagava a biblioteca do usuário. Seis achados, o mecanismo de cada um e o que a revisão tela por tela pegou que o build não pega."
 pubDate: 2026-11-11
 tags: ["swift", "watchos", "revisão", "bugs", "produto"]
 ---
 
-Artigo técnico · 11 de novembro de 2026 · 12 min de leitura
+Artigo técnico · 11 de novembro de 2026 · 11 min de leitura
 
-Pense num restaurante onde o garçom tem um cardápio lindo — mas as páginas estão
+Um app que compila, roda e passa nos testes ainda pode estar inutilizável. O
 
-coladas. Você vê os pratos, aponta, e nada acontece. O app "funcionando" é isso:
+[LeitorWatch](https://github.com/ranzouu/leitorwatch) — leitor de livros para Apple
 
-a tela mostra tudo, o código compila, os testes passam — e o usuário toca no botão
+Watch que importa arquivos do iCloud e lê em dois modos: **RSVP** (uma palavra por
 
-e nada. Foi exatamente o que encontrei quando abri o
+vez no centro da tela, como um letreiro) e **TTS** (o relógio lendo em voz alta) —
 
-[LeitorWatch](https://github.com/ranzouu/leitorwatch) para revisar antes de publicar.
+passava nesses três critérios antes de uma revisão tela por tela. A revisão encontrou
 
-## O que é o app, em uma frase
+seis problemas, três deles invisíveis a olho nu. Este artigo percorre cada achado no
 
-O LeitorWatch transforma o Apple Watch num leitor de bolso: você importa um arquivo
+formato sintoma → mecanismo → correção.
 
-de texto do iCloud e lê de dois jeitos — **RSVP**, uma palavra por vez no centro da
+## A coroa que mudava o número, não a velocidade
 
-tela (como um letreiro que não deixa seu olho passear), ou **TTS**, com o relógio
+**Sintoma:** girar a coroa digital trocava o ritmo na etiqueta — 300, 325, 350 — e a
 
-lendo em voz alta enquanto você faz outra coisa.
+leitura continuava na mesma velocidade.
 
-Compilava. Rodava. E tinha seis problemas — três deles de um tipo específico que
+**Mecanismo:** a variável exibida na tela e o timer que move as palavras eram estados
 
-só aparece quando você **olha** a tela: elementos que existem no código e são
+separados. O timer nascia com um intervalo calculado a partir do valor da coroa e não
 
-invisíveis para o olho humano.
+era informado das mudanças seguintes.
 
-## Bug 1 — A coroa que mudava o número, não a velocidade
-
-O RSVP tem uma coroa digital para ajustar as palavras por minuto. Girava, o número
-
-mudava de 300 para 325, 350… e o texto continuava no mesmo ritmo.
-
-O motivo é uma lição clássica de interface: o número na tela e o motor do app eram
-
-**duas coisas diferentes**. A coroa alterava uma variável que só era lida quando o
-
-timer era criado — e o timer, já rodando, nunca ficava sabendo da mudança. A tela
-
-dizia uma coisa; o app fazia outra.
-
-A correção é uma linha de observação: quando a velocidade muda, o timer renasce com
-
-o novo intervalo.
+**Correção:** uma observação da variável, que recria o timer com o novo intervalo:
 
 ```swift
 .onChange(of: wpm) { _, _ in
@@ -57,74 +41,76 @@ o novo intervalo.
 }
 ```
 
-A lição: **toda variável de configuração precisa de um dono que a aplique**. Mostrar
+## Botões invisíveis (dois achados, mesma raiz)
 
-não é fazer.
+**Sintoma:** os botões de voltar e avançar no leitor, e os A-/A+ de tamanho de fonte,
 
-## Bugs 2 e 3 — Tinta invisível
+apareciam como manchas escuras sobre o fundo preto. Existiam, respondiam ao toque —
 
-Os botões de voltar e avançar do leitor tinham fundo `laranja com 15% de opacidade`
+e não eram vistos.
 
-sobre fundo preto. O resultado é um laranja quase preto — o botão existe, tem área
+**Mecanismo:** os dois casos usavam tinta translúcida: laranja a 15% de opacidade
 
-de toque, funciona… e é invisível. O mesmo aconteceu com os botões A-/A+ de tamanho
+sobre preto vira preto; azul a 15% de opacidade sobre preto vira preto. A borda
 
-de fonte: preto-azulado no preto absoluto.
+continuava lá, só não havia pixels suficientes para enxergá-la.
 
-Contraste não é detalhe estético: é a diferença entre um controle e um vazio. A
+**Correção:** ícone com cor sólida e controle explícito de contraste, mantendo a área
 
-correção foi trocar o estilo "preenchido com transparência" por **ícone colorido com
-
-controle explícito de cor** e área de toque garantida:
+de toque grande o bastante para o pulso:
 
 ```swift
 Button(action: { goForwardWords(5) }) {
     Image(systemName: "goforward")
-        .foregroundColor(.orange)          // cor sólida, não tinta translúcida
+        .foregroundColor(.orange)              // cor sólida, não tinta translúcida
 }
 .buttonStyle(.plain)
 .frame(width: 36, height: 36)
-.contentShape(Rectangle())                 // a área de toque continua grande
+.contentShape(Rectangle())                     // a área de toque continua grande
 ```
 
-## Bug 4 — Avançar com o áudio pausado começava a falar
+## Avançar com o áudio pausado começava a falar
 
-Na leitura por voz, os botões de pular frase chamavam a função que reinicia a fala
+**Sintoma:** no modo de leitura por voz, pular uma frase com a fala pausada iniciava
 
-— mesmo com o áudio pausado. O usuário pedia "pula uma frase" e recebia "comecei a
+a leitura.
 
-falar do nada".
+**Mecanismo:** os dois botões de navegação chamavam a mesma rotina que reinicia a
 
-Foi o bug mais fácil de corrigir e o mais fácil de não perceber no código, porque a
+fala — escrita para o caso comum (áudio tocando) e sem tratamento do estado pausado.
 
-função funcionava perfeitamente para o caso comum (tocando). O caso de borda — pausado
+**Correção:** separar as responsabilidades. Navegar é sempre permitido; tocar áudio
 
-— é que denunciava. A correção separa as duas responsabilidades: navegar é sempre
-
-possível; falar só quando o usuário pediu para falar.
-
-## Bug 5 — O bug que apagava a biblioteca do usuário
-
-Este não era de interface, e era de longe o pior. O app guarda os livros num arquivo
-
-JSON no relógio. A leitura tinha um `try/catch` generoso demais: **qualquer** erro
-
-de leitura caía no caminho de "primeira execução", que semeia três livros de exemplo
-
-e **regrava o arquivo**.
-
-Traduzindo: se a leitura falhasse — proteção de arquivo com o relógio bloqueado,
-
-arquivo momentaneamente indisponível — o app não reportava erro: ele substituía a
-
-biblioteca do usuário pelos livros de demonstração. Falhar era aceitável; **apagar
-
-não era**.
-
-A correção separa dois cenários que nunca deveriam ter sido o mesmo `catch`:
+só quando o usuário pediu para tocar:
 
 ```swift
-// arquivo NÃO existe = primeira execução → semeia mocks
+guard currentSentenceIndex < sentenceInfos.count - 1 else { return }
+currentSentenceIndex += 1
+if isPlaying { restartSpeech() } else { updateProgress() }
+```
+
+## A biblioteca substituída pelos livros de exemplo
+
+**Sintoma:** em falhas de leitura do arquivo de dados, o app voltava a exibir três
+
+livros de demonstração no lugar da biblioteca do usuário.
+
+**Mecanismo:** a abertura do arquivo usava um bloco `try/catch` único. Qualquer erro
+
+— proteção de arquivo com o relógio bloqueado, arquivo momentaneamente indisponível
+
+— caía no mesmo caminho do "primeiro uso", que semeia os exemplos **e regrava o
+
+arquivo**. Falhar era tolerável; sobrescrever os dados do usuário, não.
+
+**Correção:** separar os dois cenários no carregamento, e ajustar a proteção do
+
+arquivo para `completeFileProtectionUntilFirstUserAuthentication` — um leitor precisa
+
+funcionar assim que o pulso é levantado, não só após o primeiro desbloqueio do dia:
+
+```swift
+// arquivo NÃO existe = primeira execução → semeia os exemplos
 guard FileManager.default.fileExists(atPath: libraryURL.path) else {
     saveLibrary(mockBooks); return mockBooks
 }
@@ -133,58 +119,59 @@ do { return try JSONDecoder().decode([Book].self, from: Data(contentsOf: library
 catch { print("biblioteca preservada: \(error)"); return [] }
 ```
 
-E a proteção de arquivo passou de `completeFileProtection` para
+## Identificador confundido com rótulo, e a barra que dominava a tela
 
-`completeFileProtectionUntilFirstUserAuthentication` — porque um leitor precisa
+**Sintoma:** em livros com dois capítulos de mesmo título, a lista de capítulos
 
-funcionar logo depois que você levanta o pulso, não só depois do primeiro desbloqueio
+misturava as linhas.
 
-do dia.
+**Mecanismo:** o `id` do capítulo era o próprio título. Identificador repetido quebra
 
-## Bugs 6 e 7 — O id que era rótulo, e a barra gorda
+a correspondeência entre dados e linhas na tela — a correção passou a usar título
 
-Dois menores, igualmente instrutivos:
+somado à posição no texto.
 
-- **Capítulos com o mesmo nome colidiam.** O capítulo usava o próprio título como
+**Sintoma:** a barra de progresso ocupava altura equivalente a um botão nas três
 
-  identificador — e quando o livro tinha dois "Capítulo 1", o SwiftUI confundia os
+telas que a usavam.
 
-  dois na lista. Identificador não é rótulo: passou a ser título + posição no texto.
-- **A barra de progresso era enorme.** O `ProgressView` padrão do watchOS desenha
+**Mecanismo:** o `ProgressView` padrão do watchOS desenha uma barra alta, pensada
 
-  uma barra alta que dominava a tela do relógio. Troquei por uma barra fina de 4
+para telas maiores. **Correção:** barra fina de 4 pontos desenhada à mão, com fundo
 
-  pontos desenhada à mão. O padrão do sistema não é automaticamente o certo para o
+translúcido e preenchimento proporcional.
 
-  seu contexto.
+## Como a revisão foi feita
 
-## Como eu achei tudo isso
+Sem testes automatizados de interface: o app foi executado no simulador do watchOS
 
-Nada de testes automatizados de UI: abri o simulador, **naveguei tela por tela e
+26.5 e cada tela inspecionada por captura de tela. Para chegar a telas de profundidade
 
-olhei cada screenshot**. Para ver cada tela sem depender de cliques (que no simulador
+sem depender de cliques imprecisos no simulador de relógio, um seletor de tela por
 
-do relógio são imprecisos), adicionei temporariamente um seletor de tela por variável
+variável de ambiente foi incluído temporariamente, corrigido o que era preciso, e as
 
-de ambiente, tirei o print de cada uma, e comparei com o que eu esperava ver.
+capturas repetidas comparando o obtido com o esperado. O seletor saiu do código antes
 
-Depois de corrigir, repeti o processo: mesma tela, mesmo print, agora legível. O
+da publicação.
 
-seletor de debug foi removido antes de publicar — scaffolding não vai pro repositório.
+## O que ficou, verificável
 
-## O que ficou
+- build ok no watchOS 26.5, executado no simulador;
+- botões laterais e A-/A+ visíveis — antes: tinta invisível;
+- velocidade da coroa aplicada no momento da mudança;
+- navegação com áudio pausado não dispara a fala;
+- falha de leitura preserva a biblioteca do usuário;
+- quatro das cinco ações do livro visíveis de uma vez na tela de opções — antes: duas.
 
-- build ok no watchOS 26.5, rodando no simulador;
-- botões laterais e A-/A+ visíveis (**antes: tinta invisível**);
-- velocidade da coroa aplicada na hora;
-- pausado é pausado — navegar não dá play sozinho;
-- biblioteca do usuário nunca mais é substituída por livros de exemplo;
-- cinco ações do livro visíveis de uma vez na tela de opções (antes: duas).
+O código e o histórico das correções estão em
 
-O código está aberto, com o histórico do que foi corrigido:
+**[github.com/ranzouu/leitorwatch](https://github.com/ranzouu/leitorwatch)**.
 
-**[github.com/ranzouu/leitorwatch](https://github.com/ranzouu/leitorwatch)**
+O que esse exercício muda na prática: uma revisão que se limita a rodar o build valida
 
-A conclusão que vale para qualquer projeto: **compilar é o começo da revisão, não o
+o caminho fácil. Os defeitos que impedem o uso — contraste, velocidade que não
 
-fim**. O app que "funciona" pode estar todo escrito em tinta invisível.
+responde, dados que somem — surgem quando alguém percorre as telas e compara o que
+
+está escrito com o que acontece. Compilar é o começo da revisão, não o fim.
