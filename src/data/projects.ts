@@ -9,6 +9,38 @@ export interface Project {
 // Projetos finalizados e públicos no GitHub
 export const projects: Project[] = [
   {
+    name: "nutriscanai",
+    year: "2026",
+    stack: "Swift · SwiftUI · Vision (OCR)",
+    description:
+      "App iOS que lê rótulos de alimentos por OCR no próprio aparelho, soma calorias e macros da refeição e funciona 100% offline.",
+    href: "https://github.com/ranzouu/nutriscanai",
+  },
+  {
+    name: "tameru",
+    year: "2026",
+    stack: "Swift · SwiftUI · HealthKit · WatchConnectivity",
+    description:
+      "Companheiro digital para iPhone e Watch com motor de comportamento em pacote Swift puro (arquitetura hexagonal) e 49 testes, incluindo adversariais, stress e concorrência.",
+    href: "https://github.com/ranzouu/tameru",
+  },
+  {
+    name: "tomawatchi",
+    year: "2026",
+    stack: "Swift · SwiftUI · HealthKit · Multipeer",
+    description:
+      "Bichinho de pulso para watchOS: passos reais do HealthKit cuidam do pet, 93 espécies na árvore de evolução e batalha P2P por Bluetooth/Bonjour.",
+    href: "https://github.com/ranzouu/tomawatchi",
+  },
+  {
+    name: "leitorwatch",
+    year: "2026",
+    stack: "Swift · SwiftUI · TTS · iCloud",
+    description:
+      "Leitor para Apple Watch com RSVP (uma palavra por vez), leitura por voz e importação de livros do iCloud Drive. Revisado tela por tela: seis bugs encontrados e corrigidos.",
+    href: "https://github.com/ranzouu/leitorwatch",
+  },
+  {
     name: "dashboard-vendas-financeiro",
     year: "2026",
     stack: "Python · Pandas · AWS",
