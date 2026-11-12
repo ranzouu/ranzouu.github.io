@@ -13,4 +13,16 @@ const artigos = defineCollection({
   }),
 });
 
-export const collections = { artigos };
+// Coleção do blog: cotidiano e pensamentos, sem protocolo de artigo técnico.
+// Frontmatter obrigatório: title, description, pubDate. Tags simples: cotidiano, estudo, pensamento.
+const blog = defineCollection({
+  loader: glob({ pattern: "*.md", base: "./src/content/blog" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),
+    tags: z.array(z.string()).default([]),
+  }),
+});
+
+export const collections = { artigos, blog };

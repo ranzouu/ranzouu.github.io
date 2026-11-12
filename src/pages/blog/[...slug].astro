@@ -1,0 +1,191 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+import type { GetStaticPaths } from "astro";
+
+export const getStaticPaths = async () => {
+  const posts = await getCollection("blog");
+  return posts.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+};
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { title, description, pubDate, tags } = entry.data;
+
+function fmt(date: Date) {
+  return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+}
+---
+
+<Layout title={`${title} — blog de Rayson Severiano`} description={description}>
+  <main class="wrap">
+    <article class="post glass-block">
+      <p class="kicker">
+        blog &middot; {fmt(pubDate)} &middot; {tags.join(" · ")}
+      </p>
+
+      <h1>{title}</h1>
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <p class="back">
+        <a href="/blog/">&larr; todos os posts</a>
+        <span class="sep">·</span>
+        <a href="/artigos/">artigos técnicos</a>
+      </p>
+    </article>
+  </main>
+</Layout>
+
+<style>
+  /* Mesmo tratamento dos artigos: .wrap tira o texto de baixo das camadas
+     fixas de fundo, .glass-block dá o papel washi da casa */
+  .post {
+    position: relative;
+    z-index: 1;
+    margin-block: var(--space-l);
+    padding: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .kicker {
+    position: relative;
+    z-index: 1;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    position: relative;
+    z-index: 1;
+    font-family: var(--mincho);
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--ink);
+    margin: 0 0 40px;
+    letter-spacing: -0.01em;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .prose {
+    position: relative;
+    z-index: 1;
+    color: var(--ink-2);
+    font-size: 1.02rem;
+    line-height: 1.8;
+  }
+
+  .prose :global(p) {
+    margin: 0 0 20px;
+    color: var(--ink-2);
+  }
+
+  .prose :global(p:first-child) {
+    font-size: 1rem;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    line-height: 1.7;
+  }
+
+  .prose :global(strong) {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .prose :global(em) {
+    font-style: italic;
+  }
+
+  .prose :global(h2) {
+    font-family: var(--mincho);
+    font-size: 1.32rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 52px 0 14px;
+    padding-top: 18px;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .prose :global(code) {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--paper-tint);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--ink);
+  }
+
+  .prose :global(pre) {
+    background: var(--paper-tint);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 22px 0 26px;
+    line-height: 1.55;
+  }
+
+  .prose :global(pre code) {
+    background: none;
+    padding: 0;
+    font-size: 0.82rem;
+    color: var(--ink-2);
+  }
+
+  .prose :global(ul) {
+    margin: 0 0 20px;
+    padding-left: 22px;
+  }
+
+  .prose :global(li) {
+    margin-bottom: 10px;
+    color: var(--ink-2);
+  }
+
+  .prose :global(li::marker) {
+    color: var(--seal);
+  }
+
+  .prose :global(a) {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--seal);
+    transition: color 0.2s ease;
+  }
+
+  .prose :global(a:hover) {
+    color: var(--seal);
+  }
+
+  .back {
+    position: relative;
+    z-index: 1;
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--hairline);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+  }
+
+  .sep {
+    padding: 0 10px;
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 640px) {
+    .post {
+      padding: 1.6rem;
+      margin-block: var(--space-m);
+    }
+  }
+</style>
