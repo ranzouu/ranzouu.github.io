@@ -7,9 +7,9 @@ export interface Commit {
 }
 
 export const recentCommits: Commit[] = [
+  { repo: "ranzouu.github.io", sha: "90b419c", msg: "chore: atualiza feed de commits [bot]", date: "2026-11-12T17:15:23Z" },
   { repo: "ranzouu.github.io", sha: "5fb6ad5", msg: "blog: estreia com 'como eu derrubei meu próprio site'; post da candidatura sai do blog e vai pro vault (13-Diario)", date: "2026-11-12T02:11:40Z" },
   { repo: "ranzouu.github.io", sha: "169a29a", msg: "feat: blog /blog/ — collection, indice, post e link no menu; primeiro post: o dia que enviei a candidatura", date: "2026-11-12T02:00:45Z" },
-  { repo: "ranzouu.github.io", sha: "13fff6c", msg: "fix: nome padrao Rayson Severiano (Hero, Contact, Layout, titulos)", date: "2026-11-12T00:55:49Z" },
   { repo: "dashboard-vendas-financeiro", sha: "f2c3acf", msg: "docs: README profissional", date: "2026-11-03T19:44:52Z" },
   { repo: "pokevgc-cli", sha: "1879942", msg: "docs: README profissional", date: "2026-11-03T19:43:38Z" },
   { repo: "EFI-T480-ThinkPad", sha: "80fb751", msg: "input+video+cleanup: VoodooRMI/SMBus trackpad, unfairgva=0, dead kexts out", date: "2026-10-17T06:09:29Z" },
