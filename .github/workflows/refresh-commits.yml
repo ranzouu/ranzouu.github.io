@@ -7,7 +7,7 @@ on:
 
 # O bot publica com GITHUB_TOKEN, e push feito com GITHUB_TOKEN NAO dispara
 # workflow (regra anti-recursao do GitHub). Por isso o deploy do Pages vive
-# aqui dentro: sem este job, o feed atualizava no repo e o site ficava velho.
+# aqui dentro: sem estes jobs, o feed atualizava no repo e o site ficava velho.
 permissions:
   contents: write
   pages: write
@@ -86,14 +86,11 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-  # Só roda quando o feed realmente mudou: build + publish do Pages.
-  deploy:
+  # Só roda quando o feed realmente mudou: build do site.
+  build:
     needs: refresh
     if: needs.refresh.outputs.changed == 'true'
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -120,6 +117,16 @@ jobs:
         with:
           path: dist
 
+  # Job separado do upload: upload-pages-artifact e deploy-pages no MESMO job
+  # nao se veem (o artifact ainda nao esta visivel na API) e o passo falha com
+  # "No artifacts named github-pages were found for this workflow run".
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

@@ -19,5 +19,7 @@ Astro 5, design system sumi-e (tokens em `src/styles/global.css`: `--paper`, `--
 ## Deploy e manutenção
 
 - Push em `main` dispara o GitHub Actions que publica; o feed de commits da home é atualizado por bot (`pull --rebase` antes de push).
+- **Push feito com `GITHUB_TOKEN` NÃO dispara workflow** (regra anti-recursão do GitHub). O bot do feed publica com esse token, então o deploy do Pages vive dentro do `refresh-commits.yml` — sem isso, o repo muda e o site congela. Push de pessoa real continua gatilho do `deploy.yml`.
+- **`upload-pages-artifact` e `deploy-pages` não podem dividir o mesmo job**: o artifact ainda não está visível na API e o passo falha com "No artifacts named github-pages were found for this workflow run". Upload em um job, deploy em outro.
 - Nunca commitar `portfolio-audit/` (repo git aninhado, untracked por natureza).
 - Build local: `npm run build` — falha ruidosamente se uma página de collection quebrar (é o smoke test).
