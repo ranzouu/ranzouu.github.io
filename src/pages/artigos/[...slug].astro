@@ -139,7 +139,7 @@ function fmt(date: Date) {
   }
 
   /* Tabelas viram ficha técnica: hairline entre linhas, cabeçalho mono.
-     Em celular a mesa rola para o lado em vez de espremer a coluna até quebrar. */
+     Em celular a tabela rola para o lado em vez de espremer a coluna até quebrar. */
   .prose :global(table) {
     display: block;
     width: 100%;
@@ -178,7 +178,7 @@ function fmt(date: Date) {
     overflow-wrap: anywhere;
   }
 
-  /* no celular a mesa aperta Padding e fonte para caber sem rolar de lado */
+  /* no celular a tabela aperta padding e fonte para caber sem rolar de lado */
   @media (max-width: 640px) {
     .prose :global(table) {
       font-size: 0.84rem;
