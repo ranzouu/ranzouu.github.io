@@ -5,12 +5,23 @@ on:
     - cron: "0 9 * * *" # 09:00 UTC = 06:00 Fortaleza, todo dia
   workflow_dispatch: # botão manual também
 
+# O bot publica com GITHUB_TOKEN, e push feito com GITHUB_TOKEN NAO dispara
+# workflow (regra anti-recursao do GitHub). Por isso o deploy do Pages vive
+# aqui dentro: sem este job, o feed atualizava no repo e o site ficava velho.
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -61,7 +72,54 @@ jobs:
           EOF
 
       - name: Commit se mudou
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git diff --quiet src/data/commits.ts && echo "sem mudanças" || (git add src/data/commits.ts && git commit -m "chore: atualiza feed de commits [bot]" && git push)
+          if git diff --quiet src/data/commits.ts; then
+            echo "sem mudanças"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git add src/data/commits.ts
+            git commit -m "chore: atualiza feed de commits [bot]"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Só roda quando o feed realmente mudou: build + publish do Pages.
+  deploy:
+    needs: refresh
+    if: needs.refresh.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
