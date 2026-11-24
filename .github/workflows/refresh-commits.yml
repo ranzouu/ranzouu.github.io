@@ -2,8 +2,12 @@ name: Atualizar feed de commits
 
 on:
   schedule:
-    - cron: "0 9 * * *" # 09:00 UTC = 06:00 Fortaleza, todo dia
-  workflow_dispatch: # botão manual também
+    # NAO conta com o horario: o GitHub atrasa runs agendadas horas (o
+    # historico mostra 7,5h a 12h de atraso neste repo), e o atraso varia.
+    # Slot pedido 09:00Z; na pratica cai a tarde de Fortaleza. Nao tente
+    # compensar mudando o cron: a folga e imprevisivel.
+    - cron: "0 9 * * *"
+  workflow_dispatch: # dispara na hora (botao manual ou gh workflow run)
 
 # O bot publica com GITHUB_TOKEN, e push feito com GITHUB_TOKEN NAO dispara
 # workflow (regra anti-recursao do GitHub). Por isso o deploy do Pages vive
