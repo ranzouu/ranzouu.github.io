@@ -7,9 +7,9 @@ export interface Commit {
 }
 
 export const recentCommits: Commit[] = [
+  { repo: "ranzouu.github.io", sha: "ea3664d", msg: "chore: atualiza feed de commits [bot]", date: "2026-11-27T18:35:28Z" },
   { repo: "ranzouu.github.io", sha: "43acbc5", msg: "chore: atualiza feed de commits [bot]", date: "2026-11-26T18:43:42Z" },
   { repo: "ranzouu.github.io", sha: "cf96412", msg: "chore: atualiza feed de commits [bot]", date: "2026-11-25T18:54:23Z" },
-  { repo: "ranzouu.github.io", sha: "4510947", msg: "chore: atualiza feed de commits [bot]", date: "2026-11-24T19:49:09Z" },
   { repo: "dashboard-vendas-financeiro", sha: "f2c3acf", msg: "docs: README profissional", date: "2026-11-03T19:44:52Z" },
   { repo: "pokevgc-cli", sha: "1879942", msg: "docs: README profissional", date: "2026-11-03T19:43:38Z" },
   { repo: "EFI-T480-ThinkPad", sha: "80fb751", msg: "input+video+cleanup: VoodooRMI/SMBus trackpad, unfairgva=0, dead kexts out", date: "2026-10-17T06:09:29Z" },
